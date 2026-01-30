@@ -1,8 +1,6 @@
 .recent-docs-wrapper {
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
 .recent-docs {
@@ -11,9 +9,6 @@
   box-sizing: border-box;
   font-family: 'Anybody', -apple-system, BlinkMacSystemFont, sans-serif;
   position: relative;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
 }
 
 /* Header - EXACTLY matching QuickActions */
@@ -31,17 +26,15 @@
   font-family: 'Anybody', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Card - Matching QuickActions card styling */
+/* Card - Matching Recommended card styling */
 .recent-card {
   background: #1a1a1a;
   border: 1px solid #2a2a2a;
   border-radius: 12px;
-  overflow: hidden;
+  padding: 20px;
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  max-height: 400px; /* Limit height for scrolling */
-  overflow-y: auto; /* Enable scrolling when showing all */
 }
 
 .recent-card:hover {
@@ -49,43 +42,53 @@
   background: #222222;
 }
 
+/* Recent List Container */
+.recent-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+  max-height: 280px; /* Limit height for scrolling */
+  overflow-y: auto; /* Enable scrolling when showing all */
+}
+
 /* Hide scrollbar for better appearance */
-.recent-card::-webkit-scrollbar {
+.recent-list::-webkit-scrollbar {
   width: 6px;
 }
 
-.recent-card::-webkit-scrollbar-track {
-  background: #1a1a1a;
+.recent-list::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.recent-card::-webkit-scrollbar-thumb {
+.recent-list::-webkit-scrollbar-thumb {
   background: #2a2a2a;
   border-radius: 3px;
 }
 
-.recent-card::-webkit-scrollbar-thumb:hover {
+.recent-list::-webkit-scrollbar-thumb:hover {
   background: #3a3a3a;
 }
 
-/* Rows - Always show exactly 3 rows in limited view */
+/* Rows */
 .recent-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 16px;
+  padding: 12px 0;
   font-size: 14px;
   color: #f0f0f0;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Anybody', -apple-system, BlinkMacSystemFont, sans-serif;
   flex-shrink: 0;
-  min-height: 60px; /* Fixed height for consistency */
+  min-height: 56px;
 }
 
 .recent-row + .recent-row {
   border-top: 1px solid #2a2a2a;
 }
 
-/* Empty row styling - only in limited view */
+/* Empty row styling */
 .recent-row.empty-row {
   cursor: default;
   opacity: 0.5;
@@ -101,7 +104,6 @@
 }
 
 .recent-row:not(.empty-row):hover {
-  background: rgba(255, 255, 255, 0.05);
   transform: translateX(2px);
 }
 
@@ -149,7 +151,7 @@
 
 .doc-name {
   font-weight: 500;
-  color: #f0f0f0;
+  color: #ffffff;
   letter-spacing: 0.3px;
   font-family: 'Anybody', -apple-system, BlinkMacSystemFont, sans-serif;
   white-space: nowrap;
@@ -177,9 +179,9 @@
   font-style: italic;
 }
 
-/* Arrow - Only show for non-empty rows */
+/* Arrow - Using FiChevronRight icon */
 .doc-arrow {
-  color: rgba(240, 240, 240, 0.7);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 16px;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -198,7 +200,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 40px 20px;
   color: #8a8a8a;
   font-style: italic;
   text-align: center;
@@ -227,19 +229,32 @@
   max-width: 200px;
 }
 
-/* Footer with toggle button */
+/* Footer with button - INSIDE the card like Recommended section */
 .recent-footer {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 12px;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #2a2a2a;
+  padding-top: 16px;
+  margin-top: 0;
 }
 
+.recent-desc {
+  font-size: 12px;
+  color: #8a8a8a;
+  margin: 0;
+  line-height: 1.4;
+  flex: 1;
+  max-width: 220px;
+}
+
+/* View All Button - Matching Recommended section's Try Now button */
 .view-all-btn {
   background: transparent;
-  border: 1px solid #facc15; /* Yellow border matching Recommended */
+  border: 1px solid #facc15; /* Yellow border */
   border-radius: 6px;
-  padding: 8px 24px;
-  color: #facc15; /* Yellow text matching Recommended */
+  padding: 8px 20px;
+  color: #facc15; /* Yellow text */
   font-size: 12px;
   font-weight: 500;
   font-family: 'Anybody', sans-serif;
@@ -250,7 +265,7 @@
 }
 
 .view-all-btn:hover {
-  background: rgba(250, 204, 21, 0.1); /* Yellow tint hover */
+  background: rgba(250, 204, 21, 0.1);
   transform: translateY(-1px);
 }
 
@@ -259,40 +274,43 @@
 /* =========================================== */
 
 /* Desktop */
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .qa-title {
     font-size: 15px;
   }
   
+  .recent-card {
+    padding: 20px;
+  }
+  
   .recent-row {
-    padding: 14px 16px;
+    padding: 12px 0;
     font-size: 14px;
-    min-height: 60px; /* Consistent height */
+    min-height: 56px;
   }
   
-  .doc-icon-wrapper {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .doc-icon {
-    font-size: 16px;
+  .recent-list {
+    max-height: 260px;
   }
   
   .recent-footer {
-    margin-top: 12px;
+    padding-top: 16px;
+  }
+  
+  .recent-desc {
+    font-size: 12px;
   }
   
   .view-all-btn {
-    padding: 8px 24px;
+    padding: 8px 20px;
     font-size: 12px;
   }
 }
 
-/* Mobile */
-@media (max-width: 767px) {
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
   .qa-header {
-    margin-bottom: 12px;
+    margin-bottom: 16px;
   }
   
   .qa-title {
@@ -300,14 +318,19 @@
   }
   
   .recent-card {
+    padding: 18px;
     border-radius: 10px;
-    max-height: 350px;
   }
   
   .recent-row {
-    padding: 12px;
+    padding: 10px 0;
     font-size: 13px;
-    min-height: 56px;
+    min-height: 52px;
+  }
+  
+  .recent-list {
+    max-height: 240px;
+    margin-bottom: 16px;
   }
   
   .doc-icon-wrapper {
@@ -324,17 +347,93 @@
   }
   
   .recent-footer {
-    margin-top: 10px;
+    padding-top: 14px;
+  }
+  
+  .recent-desc {
+    font-size: 11px;
+    max-width: 200px;
   }
   
   .view-all-btn {
-    padding: 6px 18px;
+    padding: 7px 18px;
     font-size: 11px;
-    min-width: 80px;
+    min-width: 85px;
   }
   
   .no-documents {
-    padding: 40px 15px;
+    padding: 30px 15px;
+  }
+  
+  .no-documents span {
+    font-size: 13px;
+  }
+  
+  .no-docs-hint {
+    font-size: 11px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .qa-header {
+    margin-bottom: 12px;
+  }
+  
+  .qa-title {
+    font-size: 14px;
+  }
+  
+  .recent-card {
+    padding: 16px;
+    border-radius: 10px;
+  }
+  
+  .recent-row {
+    padding: 10px 0;
+    font-size: 13px;
+    min-height: 50px;
+  }
+  
+  .recent-list {
+    max-height: 220px;
+    margin-bottom: 14px;
+  }
+  
+  .doc-icon-wrapper {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .doc-icon {
+    font-size: 14px;
+  }
+  
+  .doc-arrow {
+    font-size: 14px;
+  }
+  
+  .recent-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-top: 14px;
+  }
+  
+  .recent-desc {
+    font-size: 11px;
+    max-width: none;
+    text-align: center;
+  }
+  
+  .view-all-btn {
+    padding: 8px 20px;
+    font-size: 12px;
+    min-width: auto;
+  }
+  
+  .no-documents {
+    padding: 30px 15px;
   }
   
   .no-documents span {
@@ -357,22 +456,27 @@
   }
   
   .recent-card {
-    max-height: 300px;
+    padding: 14px;
   }
   
   .recent-row {
-    padding: 10px;
+    padding: 8px 0;
     font-size: 12px;
-    min-height: 52px;
+    min-height: 48px;
+  }
+  
+  .recent-list {
+    max-height: 200px;
+    margin-bottom: 12px;
   }
   
   .doc-icon-wrapper {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
   }
   
   .doc-icon {
-    font-size: 14px;
+    font-size: 13px;
   }
   
   .doc-date {
@@ -384,17 +488,20 @@
   }
   
   .recent-footer {
-    margin-top: 8px;
+    padding-top: 12px;
+  }
+  
+  .recent-desc {
+    font-size: 10px;
   }
   
   .view-all-btn {
-    padding: 5px 16px;
-    font-size: 10px;
-    min-width: 70px;
+    padding: 6px 16px;
+    font-size: 11px;
   }
   
   .no-documents {
-    padding: 30px 15px;
+    padding: 25px 15px;
   }
   
   .no-documents span {
