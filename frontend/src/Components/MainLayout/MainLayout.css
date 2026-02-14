@@ -1,191 +1,91 @@
+/* MainLayout.css */
+
 .main-layout-wrapper {
   width: 100%;
-  background: #000000;
-  min-height: 100vh;
+  padding: 0;
+  margin: 0;
+  background-color: #000000;
 }
 
 .main-layout-container {
+  display: flex;
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  display: flex;
   padding: 0;
-  min-height: 100vh;
+  gap: 0;
 }
 
-/* LEFT PANEL - Quick Actions */
-.left-panel {
-  flex: 0 0 50%;
-  min-width: 0; /* Prevents overflow */
-  padding: 48px 48px 32px;
-  background: #000000;
-  position: relative;
-}
-
-/* RIGHT PANEL - Design + Recent Documents */
-.right-panel {
-  flex: 0 0 50%;
-  min-width: 0; /* Prevents overflow */
-  padding: 48px 48px 32px;
-  background: #000000;
-}
-
-.right-content {
-  display: flex;
-  flex-direction: column;
-  gap: 48px;
-  height: 100%;
-}
-
-.design-container {
-  width: 100%;
-}
-
-.recent-docs-container {
-  width: 100%;
+/* Left Panel - Quick Actions */
+.quick-actions-panel {
   flex: 1;
+  min-width: 0;
+  padding: 0 48px 32px 48px;
 }
 
-/* =========================================== */
-/* RESPONSIVE STYLES */
-/* =========================================== */
+/* Right Panel - Recent Documents + Image Section */
+.recent-docs-panel {
+  flex: 1;
+  min-width: 0;
+  padding: 0 48px 32px 48px;
+  overflow-y: auto;
 
-/* Large Desktop (1400px+) */
-@media (min-width: 1400px) {
+  display: flex;              /* Added */
+  flex-direction: column;     /* Stack vertically */
+  gap: 24px;                  /* Space between RecentDocuments & ImageSection */
+}
+
+/* Desktop Layout */
+@media (min-width: 1024px) {
   .main-layout-container {
-    max-width: 1800px;
+    gap: 0;
   }
-  
-  .left-panel,
-  .right-panel {
-    padding: 56px 60px 40px;
+
+  .quick-actions-panel {
+    flex: 0 0 50%;
+    max-width: 50%;
   }
-  
-  .right-content {
-    gap: 56px;
+
+  .recent-docs-panel {
+    flex: 0 0 50%;
+    max-width: 50%;
   }
 }
 
-/* Desktop (1024px - 1399px) */
-@media (min-width: 1024px) and (max-width: 1399px) {
-  .left-panel,
-  .right-panel {
-    padding: 40px 40px 28px;
-  }
-  
-  .right-content {
-    gap: 40px;
-  }
-}
-
-/* Tablet (768px - 1023px) */
+/* Tablet Layout */
 @media (min-width: 768px) and (max-width: 1023px) {
   .main-layout-container {
     flex-direction: column;
-    padding: 0;
   }
-  
-  .left-panel {
-    flex: 0 0 auto;
-    width: 100%;
-    padding: 32px 32px 24px;
-    border-bottom: 1px solid #2a2a2a;
+
+  .quick-actions-panel {
+    padding: 0 32px 24px 32px;
   }
-  
-  .right-panel {
-    flex: 0 0 auto;
-    width: 100%;
-    padding: 32px 32px 24px;
-  }
-  
-  .right-content {
-    gap: 40px;
+
+  .recent-docs-panel {
+    padding: 0 32px 24px 32px;
   }
 }
 
-/* Mobile (480px - 767px) */
+/* Mobile Layout */
 @media (max-width: 767px) {
   .main-layout-container {
     flex-direction: column;
-    padding: 0;
   }
-  
-  .left-panel {
-    flex: 0 0 auto;
-    width: 100%;
-    padding: 24px 24px 20px;
-    border-bottom: 1px solid #2a2a2a;
+
+  .quick-actions-panel {
+    padding: 0 24px 20px 24px;
   }
-  
-  .right-panel {
-    flex: 0 0 auto;
-    width: 100%;
-    padding: 24px 24px 20px;
-  }
-  
-  .right-content {
-    gap: 32px;
+
+  .recent-docs-panel {
+    padding: 0 24px 20px 24px;
   }
 }
 
-/* Small Mobile (≤ 480px) */
+/* Small Mobile */
 @media (max-width: 480px) {
-  .left-panel {
-    padding: 20px 20px 16px;
-  }
-  
-  .right-panel {
-    padding: 20px 20px 16px;
-  }
-  
-  .right-content {
-    gap: 28px;
-  }
-}
-
-/* Extra Small Devices (≤ 375px) */
-@media (max-width: 375px) {
-  .left-panel {
-    padding: 16px 16px 12px;
-  }
-  
-  .right-panel {
-    padding: 16px 16px 12px;
-  }
-  
-  .right-content {
-    gap: 24px;
-  }
-}
-
-/* Landscape Mode for Mobile */
-@media (max-height: 600px) and (orientation: landscape) {
-  .main-layout-container {
-    min-height: auto;
-  }
-  
-  .left-panel,
-  .right-panel {
-    padding: 24px 24px 20px;
-  }
-  
-  .right-content {
-    gap: 32px;
-  }
-}
-
-/* 2K and 4K Screens */
-@media (min-width: 2000px) {
-  .main-layout-container {
-    max-width: 2000px;
-  }
-  
-  .left-panel,
-  .right-panel {
-    padding: 64px 80px 48px;
-  }
-  
-  .right-content {
-    gap: 64px;
+  .quick-actions-panel,
+  .recent-docs-panel {
+    padding: 0 20px 16px 20px;
   }
 }

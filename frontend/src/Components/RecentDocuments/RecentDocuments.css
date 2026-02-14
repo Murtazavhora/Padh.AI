@@ -48,8 +48,8 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 18px;
-  max-height: 280px; /* Limit height for scrolling */
-  overflow-y: auto; /* Enable scrolling when showing all */
+  max-height: 280px;
+  overflow-y: auto;
 }
 
 /* Hide scrollbar for better appearance */
@@ -134,12 +134,12 @@
 }
 
 .doc-icon {
-  color: #6FAF8E; /* Green color matching QuickActions theme */
+  color: #B087FF; /* Changed to purple to match theme */
   font-size: 16px;
 }
 
 .empty-row .doc-icon {
-  color: #8a8a8a; /* Gray for empty state */
+  color: #8a8a8a;
 }
 
 .doc-details {
@@ -191,7 +191,7 @@
 
 .recent-row:not(.empty-row):hover .doc-arrow {
   transform: translateX(3px);
-  color: #facc15;
+  color: #B087FF; /* Changed to purple on hover */
 }
 
 /* No documents state */
@@ -248,13 +248,13 @@
   max-width: 220px;
 }
 
-/* View All Button - Matching Recommended section's Try Now button */
+/* View All Button - Updated to match purple theme */
 .view-all-btn {
   background: transparent;
-  border: 1px solid #facc15; /* Yellow border */
+  border: 1px solid #B087FF; /* Changed to purple */
   border-radius: 6px;
   padding: 8px 20px;
-  color: #facc15; /* Yellow text */
+  color: #B087FF; /* Changed to purple */
   font-size: 12px;
   font-weight: 500;
   font-family: 'Anybody', sans-serif;
@@ -265,7 +265,7 @@
 }
 
 .view-all-btn:hover {
-  background: rgba(250, 204, 21, 0.1);
+  background: rgba(176, 135, 255, 0.1); /* Purple with opacity */
   transform: translateY(-1px);
 }
 
@@ -359,6 +359,12 @@
     padding: 7px 18px;
     font-size: 11px;
     min-width: 85px;
+    border-color: #B087FF; /* Purple */
+    color: #B087FF; /* Purple */
+  }
+  
+  .view-all-btn:hover {
+    background: rgba(176, 135, 255, 0.1);
   }
   
   .no-documents {
@@ -415,7 +421,7 @@
   
   /* MOBILE FOOTER - EXACTLY LIKE RECOMMENDED SECTION */
   .recent-footer {
-    flex-direction: row; /* Keep button on right side */
+    flex-direction: row;
     align-items: center;
     gap: 12px;
     padding-top: 16px;
@@ -430,7 +436,13 @@
     padding: 7px 16px;
     font-size: 11px;
     min-width: 80px;
-    margin-left: auto; /* Push to right */
+    margin-left: auto;
+    border-color: #B087FF; /* Purple */
+    color: #B087FF; /* Purple */
+  }
+  
+  .view-all-btn:hover {
+    background: rgba(176, 135, 255, 0.1);
   }
   
   .no-documents {
@@ -479,6 +491,7 @@
   
   .doc-icon {
     font-size: 13px;
+    color: #B087FF; /* Purple */
   }
   
   .doc-date {
@@ -487,6 +500,10 @@
   
   .doc-arrow {
     font-size: 13px;
+  }
+  
+  .recent-row:not(.empty-row):hover .doc-arrow {
+    color: #B087FF; /* Purple */
   }
   
   /* SMALL MOBILE FOOTER - EXACTLY LIKE RECOMMENDED */
@@ -504,7 +521,13 @@
     padding: 6px 14px;
     font-size: 10px;
     min-width: 70px;
-    margin-left: auto; /* Push to right */
+    margin-left: auto;
+    border-color: #B087FF; /* Purple */
+    color: #B087FF; /* Purple */
+  }
+  
+  .view-all-btn:hover {
+    background: rgba(176, 135, 255, 0.1);
   }
   
   .no-documents {

@@ -1,23 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Anybody:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anybody:wght@300;400;500&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Borel&display=swap');
 
 .heading-layout {
   width: 100%;
   background-color: #000000;
-  padding: 32px 48px 36px;
+  padding: 48px 48px 80px; /* Top: 48px (increased), Bottom: 80px (increased more) */
   box-sizing: border-box;
-  margin-top: 70px; /* Matches header height */
+  margin-top: 70px;
+  position: relative;
 }
 
-/* First line - off-white */
+/* Subtle gradient overlay - kept only at top */
+.heading-layout::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+}
+
+/* First line - sophisticated off-white */
 .heading-line-one {
-  margin: 0 0 8px 0;
-  font-size: 28px; /* 28px for non-logo text */
-  font-weight: 400;
-  color: #D9D9D9;
+  margin: 0 0 10px 0;
+  font-size: 28px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.7);
   font-family: 'Anybody', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
   line-height: 1.3;
+  text-transform: lowercase;
 }
 
 /* Second line container */
@@ -26,7 +39,7 @@
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 /* Brand wrapper */
@@ -34,133 +47,228 @@
   display: flex;
   align-items: baseline;
   gap: 1px;
+  position: relative;
 }
 
-/* Padh - Yellow, 27.5px, Borel font */
+/* Subtle glow effect behind brand - only behind the logo */
+.brand-wrapper::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background: radial-gradient(circle at center, rgba(250, 204, 21, 0.08) 0%, transparent 70%);
+  z-index: -1;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Padh - Original yellow color preserved */
 .brand.padh {
   font-family: 'Borel', cursive;
-  font-size: 27.5px; /* 27.5px for Padh.AI */
+  font-size: 27.5px;
   color: #facc15;
   font-weight: 400;
   letter-spacing: 0.3px;
-  text-shadow: 0 2px 8px rgba(250, 204, 21, 0.4);
   line-height: 1;
   position: relative;
   top: 2px;
+  text-shadow: 0 0 10px rgba(250, 204, 21, 0.2);
 }
 
-/* Dot - Yellow, 27.5px, Borel font */
+/* Dot - Original yellow color preserved */
 .brand.dot {
   font-family: 'Borel', cursive;
-  font-size: 27.5px; /* 27.5px for Padh.AI */
+  font-size: 27.5px;
   color: #facc15;
   font-weight: 400;
   line-height: 1;
   position: relative;
   top: 2px;
+  opacity: 0.9;
 }
 
-/* AI - Yellow, 27.5px, Borel font */
+/* AI - Original yellow color preserved */
 .brand.ai {
   font-family: 'Borel', cursive;
-  font-size: 27.5px; /* 27.5px for Padh.AI */
+  font-size: 27.5px;
   color: #facc15;
   font-weight: 400;
   line-height: 1;
   position: relative;
   top: 2px;
-  text-shadow: 0 2px 8px rgba(250, 204, 21, 0.4);
+  opacity: 0.95;
+  text-shadow: 0 0 8px rgba(250, 204, 21, 0.15);
 }
 
-/* "handles the chaos" text - 28px, Anybody font */
+/* "handles the chaos" text - monochromatic */
 .handles-text {
   font-family: 'Anybody', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 28px; /* 28px for non-logo text */
-  font-weight: 400;
-  color: #D9D9D9;
-  letter-spacing: 0.3px;
+  font-size: 28px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.2px;
   line-height: 1.3;
   position: relative;
   top: 2px;
+  font-style: normal;
 }
 
-/* Tablet */
+/* Tablet - 1024px and below */
+@media (max-width: 1024px) {
+  .heading-layout {
+    padding: 42px 40px 70px; /* Top: 42px, Bottom: 70px */
+  }
+}
+
+/* Tablet - 768px to 1023px */
 @media (min-width: 768px) and (max-width: 1023px) {
   .heading-layout {
-    padding: 28px 32px 32px;
+    padding: 38px 32px 60px; /* Top: 38px, Bottom: 60px */
   }
   
   .heading-line-one {
-    font-size: 26px; /* Scaled down for tablet */
+    font-size: 26px;
+    letter-spacing: 0.4px;
   }
   
   .brand.padh,
   .brand.dot,
   .brand.ai {
-    font-size: 25.5px; /* Scaled down proportionally for tablet */
+    font-size: 25.5px;
     top: 1px;
   }
   
+  .brand.dot {
+    opacity: 0.85;
+  }
+  
+  .brand.ai {
+    opacity: 0.9;
+  }
+  
   .handles-text {
-    font-size: 26px; /* Scaled down for tablet */
+    font-size: 26px;
     top: 1px;
+    color: rgba(255, 255, 255, 0.45);
   }
 }
 
 /* Mobile */
 @media (max-width: 767px) {
   .heading-layout {
-    padding: 24px 24px 28px;
-    margin-top: 65px; /* Matches mobile header height */
+    padding: 34px 24px 50px; /* Top: 34px, Bottom: 50px */
+    margin-top: 65px;
   }
   
   .heading-line-one {
-    font-size: 24px; /* Scaled down for mobile */
-    margin-bottom: 6px;
+    font-size: 24px;
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
   }
   
   .brand.padh,
   .brand.dot,
   .brand.ai {
-    font-size: 23.5px; /* Scaled down proportionally for mobile */
+    font-size: 23.5px;
     top: 1px;
   }
   
+  .brand.padh { 
+    color: #facc15; 
+    text-shadow: 0 0 8px rgba(250, 204, 21, 0.2);
+  }
+  .brand.dot { 
+    color: #facc15; 
+    opacity: 0.85; 
+  }
+  .brand.ai { 
+    color: #facc15; 
+    opacity: 0.9;
+    text-shadow: 0 0 6px rgba(250, 204, 21, 0.15);
+  }
+  
   .handles-text {
-    font-size: 24px; /* Scaled down for mobile */
+    font-size: 24px;
     top: 1px;
+    color: rgba(255, 255, 255, 0.4);
   }
 }
 
 /* Small Mobile */
 @media (max-width: 480px) {
   .heading-layout {
-    padding: 20px 20px 24px;
-    margin-top: 62px; /* Matches small mobile header height */
+    padding: 28px 20px 44px; /* Top: 28px, Bottom: 44px */
+    margin-top: 62px;
   }
   
   .heading-line-one {
-    font-size: 22px; /* Scaled down for small mobile */
+    font-size: 22px;
   }
   
   .brand.padh,
   .brand.dot,
   .brand.ai {
-    font-size: 21.5px; /* Scaled down proportionally for small mobile */
+    font-size: 21.5px;
     top: 0.5px;
   }
   
+  .brand.padh { 
+    color: #facc15; 
+  }
+  .brand.dot { 
+    color: #facc15; 
+    opacity: 0.8; 
+  }
+  .brand.ai { 
+    color: #facc15; 
+    opacity: 0.85;
+  }
+  
   .handles-text {
-    font-size: 22px; /* Scaled down for small mobile */
+    font-size: 22px;
     top: 0.5px;
+    color: rgba(255, 255, 255, 0.35);
   }
 }
 
-/* Ensure it stays on separate lines on very small screens */
+/* Extra Small Mobile */
 @media (max-width: 360px) {
+  .heading-layout {
+    padding: 24px 16px 40px; /* Top: 24px, Bottom: 40px */
+  }
+  
   .heading-line-two {
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     align-items: flex-start;
+  }
+  
+  .brand-wrapper {
+    margin-bottom: 2px;
+  }
+  
+  .handles-text {
+    margin-left: 1px;
+  }
+}
+
+/* Handle notched phones */
+@supports (padding: max(0px)) {
+  @media (max-width: 480px) {
+    .heading-layout {
+      padding-left: max(20px, env(safe-area-inset-left));
+      padding-right: max(20px, env(safe-area-inset-right));
+    }
+  }
+}
+
+/* Landscape orientation optimization */
+@media (max-height: 600px) and (orientation: landscape) {
+  .heading-layout {
+    padding-top: 24px;
+    padding-bottom: 36px;
+    margin-top: 60px;
   }
 }

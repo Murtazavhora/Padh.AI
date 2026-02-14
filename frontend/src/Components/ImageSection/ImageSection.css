@@ -1,0 +1,550 @@
+.image-section {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  background: transparent;
+  padding: 0 48px 80px;
+  box-sizing: border-box;
+}
+
+/* Subtle gradient overlay at top */
+.image-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 48px;
+  right: 48px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+  z-index: 5;
+}
+
+/* Single Circle Background - Responsive */
+.circular-background {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  opacity: 0.7;
+}
+
+/* Single circle with responsive sizing */
+.single-circle {
+  position: absolute;
+  width: min(900px, 90vw);
+  height: min(900px, 90vw);
+  border-radius: 50%;
+  background: radial-gradient(circle at center,
+      rgba(45, 75, 150, 0.3) 0%,
+      rgba(30, 58, 138, 0.25) 15%,
+      rgba(20, 40, 90, 0.2) 30%,
+      rgba(10, 20, 50, 0.15) 45%,
+      rgba(5, 8, 25, 0.1) 60%,
+      transparent 80%);
+  box-shadow: 0 0 120px rgba(45, 75, 150, 0.2);
+  z-index: 1;
+  filter: blur(30px);
+}
+
+/* Secondary circle - responsive */
+.single-circle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(600px, 60vw);
+  height: min(600px, 60vw);
+  border-radius: 50%;
+  background: radial-gradient(circle at center,
+      rgba(60, 100, 200, 0.15) 0%,
+      transparent 70%);
+  filter: blur(40px);
+}
+
+/* Content Styles */
+.content {
+  position: relative;
+  z-index: 20;
+  text-align: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 0;
+}
+
+/* Optional section title */
+.section-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  margin: 0 0 24px 0;
+  align-self: flex-start;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Images Container - Mobile First */
+.images-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  gap: 24px;
+  flex-wrap: wrap;
+  width: 100%;
+  margin: 0 auto;
+  padding-top: 0;
+}
+
+/* Individual Image Container */
+.image-container {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 35px -15px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  z-index: 30;
+  flex: 0 1 auto;
+  background: rgba(18, 18, 18, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  margin-top: 0;
+}
+
+/* First image at the top */
+.images-container .image-container:first-child {
+  margin-top: 0;
+}
+
+/* Hover effects */
+.image-container:hover {
+  transform: translateY(-4px);
+  border-color: rgba(77, 159, 255, 0.2);
+  box-shadow: 0 25px 40px -15px rgba(77, 159, 255, 0.15);
+}
+
+.image-container img {
+  width: 100%;
+  height: 200px;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.image-container:hover img {
+  transform: scale(1.05);
+}
+
+/* Gradient overlay */
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.2) 100%);
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.image-container:hover .image-overlay {
+  opacity: 0.3;
+}
+
+/* Subtle inner border */
+.image-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* Image caption */
+.image-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  color: white;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.image-container:hover .image-caption {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== MOBILE-FIRST RESPONSIVE ===== */
+
+/* Large Desktop */
+@media (min-width: 1200px) {
+  .image-section {
+    padding: 0 48px 80px;
+  }
+}
+
+/* Desktop */
+@media (max-width: 1200px) {
+  .image-section {
+    padding: 0 40px 70px;
+  }
+
+  .image-section::before {
+    left: 40px;
+    right: 40px;
+  }
+}
+
+/* Small Desktop / Large Tablet */
+@media (max-width: 1000px) {
+  .image-section {
+    padding: 0 32px 60px;
+  }
+
+  .image-section::before {
+    left: 32px;
+    right: 32px;
+  }
+
+  .images-container {
+    gap: 20px;
+  }
+
+  .image-container {
+    max-width: 280px;
+  }
+
+  .image-container img {
+    height: 180px;
+  }
+}
+
+/* Tablet */
+@media (max-width: 800px) {
+  .image-section {
+    padding: 0 28px 50px;
+  }
+
+  .images-container {
+    gap: 18px;
+  }
+
+  .image-container {
+    max-width: 260px;
+  }
+
+  .image-container img {
+    height: 170px;
+  }
+}
+
+/* Mobile Breakpoint - Switch to Vertical with Broader Blue Background */
+@media (max-width: 700px) {
+  .image-section {
+    padding: 30px 24px 60px;
+    min-height: auto;
+  }
+
+  .image-section::before {
+    left: 24px;
+    right: 24px;
+    top: 30px;
+  }
+
+  /* Broader Blue Background for Mobile */
+  .circular-background {
+    opacity: 0.9; /* Increased opacity for more visibility */
+    transform: translate(-50%, -45%); /* Slightly shift up to cover more area */
+  }
+
+  .single-circle {
+    width: min(1200px, 150vw); /* Much wider on mobile */
+    height: min(1200px, 150vw); /* Much wider on mobile */
+    filter: blur(50px); /* More blur for softer edges */
+    background: radial-gradient(circle at center,
+        rgba(45, 75, 150, 0.4) 0%,
+        rgba(30, 58, 138, 0.35) 20%,
+        rgba(20, 40, 90, 0.3) 40%,
+        rgba(10, 20, 50, 0.2) 60%,
+        rgba(5, 8, 25, 0.15) 80%,
+        transparent 100%);
+  }
+
+  .single-circle::after {
+    width: min(800px, 120vw);
+    height: min(800px, 120vw);
+    filter: blur(60px);
+    background: radial-gradient(circle at center,
+        rgba(60, 100, 200, 0.2) 0%,
+        transparent 80%);
+  }
+
+  /* Switch to vertical layout */
+  .images-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+  }
+
+  /* Center images vertically and horizontally */
+  .image-container {
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .image-container img {
+    height: 220px;
+  }
+
+  /* Ensure first image has spacing from top */
+  .images-container .image-container:first-child {
+    margin-top: 10px;
+  }
+
+  /* Better caption visibility on mobile */
+  .image-caption {
+    opacity: 1;
+    transform: translateY(0);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    font-size: 15px;
+    padding: 18px;
+  }
+
+  /* Adjust hover for touch */
+  .image-container:hover {
+    transform: none;
+  }
+
+  .image-container:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 500px) {
+  .image-section {
+    padding: 25px 20px 50px;
+  }
+
+  .image-section::before {
+    left: 20px;
+    right: 20px;
+    top: 25px;
+  }
+
+  /* Even broader blue background for small mobile */
+  .single-circle {
+    width: min(1400px, 180vw);
+    height: min(1400px, 180vw);
+    filter: blur(60px);
+  }
+
+  .single-circle::after {
+    width: min(1000px, 150vw);
+    height: min(1000px, 150vw);
+  }
+
+  .images-container {
+    gap: 25px;
+  }
+
+  .image-container {
+    max-width: 340px;
+  }
+
+  .image-container img {
+    height: 200px;
+  }
+
+  .image-caption {
+    font-size: 14px;
+    padding: 16px;
+  }
+  
+  .images-container .image-container:first-child {
+    margin-top: 8px;
+  }
+}
+
+/* Extra Small Mobile */
+@media (max-width: 400px) {
+  .image-section {
+    padding: 20px 16px 45px;
+  }
+
+  .image-section::before {
+    left: 16px;
+    right: 16px;
+    top: 20px;
+  }
+
+  /* Maximum blue background for extra small mobile */
+  .single-circle {
+    width: min(1600px, 200vw);
+    height: min(1600px, 200vw);
+    filter: blur(70px);
+  }
+
+  .single-circle::after {
+    width: min(1200px, 180vw);
+    height: min(1200px, 180vw);
+  }
+
+  .images-container {
+    gap: 20px;
+  }
+
+  .image-container {
+    max-width: 300px;
+  }
+
+  .image-container img {
+    height: 180px;
+  }
+
+  .image-caption {
+    font-size: 13px;
+    padding: 14px;
+  }
+  
+  .images-container .image-container:first-child {
+    margin-top: 6px;
+  }
+}
+
+/* Very Small Mobile */
+@media (max-width: 360px) {
+  .image-section {
+    padding: 18px 14px 40px;
+  }
+
+  .image-section::before {
+    top: 18px;
+  }
+
+  .single-circle {
+    width: min(1800px, 220vw);
+    height: min(1800px, 220vw);
+  }
+
+  .image-container {
+    max-width: 260px;
+  }
+
+  .image-container img {
+    height: 160px;
+  }
+
+  .image-caption {
+    font-size: 12px;
+    padding: 12px;
+  }
+  
+  .images-container .image-container:first-child {
+    margin-top: 5px;
+  }
+}
+
+/* Handle notched phones */
+@supports (padding: max(0px)) {
+  @media (max-width: 700px) {
+    .image-section {
+      padding-left: max(24px, env(safe-area-inset-left));
+      padding-right: max(24px, env(safe-area-inset-right));
+      padding-top: max(30px, env(safe-area-inset-top));
+    }
+
+    .image-section::before {
+      left: max(24px, env(safe-area-inset-left));
+      right: max(24px, env(safe-area-inset-right));
+      top: max(30px, env(safe-area-inset-top));
+    }
+  }
+}
+
+/* Landscape orientation */
+@media (max-height: 600px) and (orientation: landscape) {
+  .image-section {
+    padding: 20px 24px 40px;
+  }
+
+  .images-container {
+    gap: 20px;
+  }
+
+  .image-container {
+    max-width: 280px;
+  }
+
+  .image-container img {
+    height: 160px;
+  }
+  
+  /* Adjust blue background for landscape */
+  .single-circle {
+    width: min(1000px, 120vw);
+    height: min(1000px, 120vw);
+  }
+}
+
+/* High-resolution screens */
+@media (min-width: 2000px) {
+  .single-circle {
+    width: 1200px;
+    height: 1200px;
+  }
+
+  .single-circle::after {
+    width: 800px;
+    height: 800px;
+  }
+
+  .image-container {
+    max-width: 350px;
+  }
+
+  .image-container img {
+    height: 230px;
+  }
+}

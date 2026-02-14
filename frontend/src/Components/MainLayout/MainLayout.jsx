@@ -1,29 +1,25 @@
-import React from "react";
-import "./MainLayout.css";
-import QuickActions from "../QuickActions/QuickActions";
-import RecentDocuments from "../RecentDocuments/RecentDocuments";
-import Design from "../Design/Design";
+import React from 'react';
+import './MainLayout.css';
+import QuickActions from '../QuickActions/QuickActions';
+import RecentDocuments from '../RecentDocuments/RecentDocuments';
+import ImageSection from "../ImageSection/ImageSection";
 
 function MainLayout() {
   return (
     <div className="main-layout-wrapper">
       <div className="main-layout-container">
-        {/* LEFT SIDE - Quick Actions */}
-        <div className="left-panel">
+        
+        {/* Left Side - Quick Actions */}
+        <div className="quick-actions-panel">
           <QuickActions />
         </div>
 
-        {/* RIGHT SIDE - Design + Recent Documents */}
-        <div className="right-panel">
-          <div className="right-content">
-            <div className="design-container">
-              <Design />
-            </div>
-            <div className="recent-docs-container">
-              <RecentDocuments />
-            </div>
-          </div>
+        {/* Right Side - Image Section + Recent Documents */}
+        <div className="recent-docs-panel">
+          <ImageSection />      {/* ✅ Now on top */}
+          <RecentDocuments />   {/* ✅ Now below */}
         </div>
+
       </div>
     </div>
   );

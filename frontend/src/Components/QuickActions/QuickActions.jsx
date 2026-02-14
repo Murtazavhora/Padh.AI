@@ -5,21 +5,20 @@ import {
   FiCheckSquare,
   FiCpu,
   FiChevronRight,
-  FiZap
+  FiZap,
+  FiTrendingUp
 } from 'react-icons/fi';
 
 function QuickActions() {
   const handleCardClick = (action) => {
     console.log(`Clicked: ${action}`);
     
-    // Handle upload separately
     if (action === 'Upload Document') {
       handleUpload();
     }
   };
 
   const handleUpload = () => {
-    // Create a file input element
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.pdf,.doc,.docx,.txt,.jpg,.jpeg,.png';
@@ -30,20 +29,12 @@ function QuickActions() {
         const fileName = file.name;
         const fileType = fileName.split('.').pop().toLowerCase();
         
-        // Add to recent documents
         if (window.addRecentDocument) {
           window.addRecentDocument(fileName, fileType);
         }
         
-        // Simulate upload process
-        console.log(`Uploading: ${fileName}`);
-        alert(`Document "${fileName}" uploaded successfully!`);
-        
-        // Here you would typically:
-        // 1. Upload to your backend server
-        // 2. Process the file
-        // 3. Update state/redux store
-        // 4. Show success message
+        // Simple console log - no alert popups
+        console.log(`📄 Uploaded: ${fileName}`);
       }
     };
     
@@ -57,7 +48,10 @@ function QuickActions() {
           {/* Quick Actions Section */}
           <div className="qa-section">
             <div className="qa-header">
-              <h2 className="qa-title">Quick Actions</h2>
+              <div className="header-left">
+                <h2 className="qa-title">Quick Actions</h2>
+              </div>
+              <span className="header-badge">4 items</span>
             </div>
 
             <div className="qa-scroll-container">
@@ -67,16 +61,16 @@ function QuickActions() {
                   className="qa-card upload"
                   onClick={() => handleCardClick('Upload Document')}
                 >
-                  <div className="card-content">
-                    <div className="card-icon-wrapper floating-icon">
+                  <div className="card-top">
+                    <div className="card-icon-wrapper">
                       <FiUpload className="qa-icon" />
                     </div>
-                    <div className="card-text">
-                      <h3 className="card-title">Upload Document</h3>
-                      <p className="card-desc">Start learning with AI</p>
-                    </div>
+                    <FiChevronRight className="card-arrow" />
                   </div>
-                  <FiChevronRight className="card-arrow" />
+                  <div className="card-text">
+                    <h3 className="card-title">Upload</h3>
+                    <p className="card-desc">Add new documents</p>
+                  </div>
                 </div>
 
                 {/* Summary Card */}
@@ -84,16 +78,16 @@ function QuickActions() {
                   className="qa-card summary"
                   onClick={() => handleCardClick('AI Summary')}
                 >
-                  <div className="card-content">
-                    <div className="card-icon-wrapper floating-icon" style={{animationDelay: '0.2s'}}>
+                  <div className="card-top">
+                    <div className="card-icon-wrapper">
                       <FiFileText className="qa-icon" />
                     </div>
-                    <div className="card-text">
-                      <h3 className="card-title">AI Summary</h3>
-                      <p className="card-desc">Quick insights & notes</p>
-                    </div>
+                    <FiChevronRight className="card-arrow" />
                   </div>
-                  <FiChevronRight className="card-arrow" />
+                  <div className="card-text">
+                    <h3 className="card-title">Summary</h3>
+                    <p className="card-desc">AI-powered insights</p>
+                  </div>
                 </div>
 
                 {/* Quiz Card */}
@@ -101,16 +95,16 @@ function QuickActions() {
                   className="qa-card quiz"
                   onClick={() => handleCardClick('Practice Quiz')}
                 >
-                  <div className="card-content">
-                    <div className="card-icon-wrapper floating-icon" style={{animationDelay: '0.4s'}}>
+                  <div className="card-top">
+                    <div className="card-icon-wrapper">
                       <FiCheckSquare className="qa-icon" />
                     </div>
-                    <div className="card-text">
-                      <h3 className="card-title">Practice Quiz</h3>
-                      <p className="card-desc">Test your knowledge</p>
-                    </div>
+                    <FiChevronRight className="card-arrow" />
                   </div>
-                  <FiChevronRight className="card-arrow" />
+                  <div className="card-text">
+                    <h3 className="card-title">Quiz</h3>
+                    <p className="card-desc">Test knowledge</p>
+                  </div>
                 </div>
 
                 {/* Assistant Card */}
@@ -118,25 +112,28 @@ function QuickActions() {
                   className="qa-card assistant"
                   onClick={() => handleCardClick('AI Assistant')}
                 >
-                  <div className="card-content">
-                    <div className="card-icon-wrapper floating-icon" style={{animationDelay: '0.6s'}}>
+                  <div className="card-top">
+                    <div className="card-icon-wrapper">
                       <FiCpu className="qa-icon" />
                     </div>
-                    <div className="card-text">
-                      <h3 className="card-title">AI Assistant</h3>
-                      <p className="card-desc">Get instant help</p>
-                    </div>
+                    <FiChevronRight className="card-arrow" />
                   </div>
-                  <FiChevronRight className="card-arrow" />
+                  <div className="card-text">
+                    <h3 className="card-title">Assistant</h3>
+                    <p className="card-desc">24/7 AI help</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Recommended Section - Professional */}
+          {/* Recommended Section */}
           <div className="recommended-section">
             <div className="qa-header">
-              <h2 className="qa-title">Recommended</h2>
+              <div className="header-left">
+                <h2 className="qa-title">Recommended</h2>
+              </div>
+              <span className="header-badge">New</span>
             </div>
 
             <div className="recommended-card">
@@ -147,17 +144,38 @@ function QuickActions() {
                 
                 <div className="recommended-text">
                   <h3 className="recommended-title">Anti-Lazy AI</h3>
-                  <p className="recommended-tagline">Learn by thinking, not copying.</p>
+                  <p className="recommended-tagline">Learn by thinking, not copying</p>
                 </div>
               </div>
               
               <div className="recommended-footer">
-                <p className="recommended-desc">Transform your learning with intelligent questioning</p>
+                <p className="recommended-desc">
+                  Transform your learning with intelligent questioning
+                </p>
                 <button className="try-now-btn">
-                  Try Now
+                  Try
                 </button>
               </div>
             </div>
+
+            {/* Minimal stats */}
+            {/* <div className="stats-mini">
+              <div className="stat-item">
+                <span className="stat-dot"></span>
+                <span className="stat-label">Docs</span>
+                <span className="stat-value">1.2k</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-dot"></span>
+                <span className="stat-label">Quiz</span>
+                <span className="stat-value">856</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-dot"></span>
+                <span className="stat-label">Active</span>
+                <span className="stat-value">24/7</span>
+              </div>
+            </div> */}
           </div>
         </div>
       </section>
