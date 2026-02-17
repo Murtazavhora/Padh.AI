@@ -16,8 +16,8 @@ function MainLayout() {
 
         {/* Right Side - Image Section + Recent Documents */}
         <div className="recent-docs-panel">
-          <RecentDocuments />   {/* ✅ Now below */}
-          <ImageSection />      {/* ✅ Now on top */}
+          <RecentDocuments />
+          <ImageSection />
         </div>
 
       </div>

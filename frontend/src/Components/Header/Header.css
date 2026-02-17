@@ -296,7 +296,7 @@
 
 .upload-card-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(110, 145, 181, 0.4);
+  box-shadow: 0 8px 24px rgba(250, 204, 21, 0.3); /* Changed to yellow */
 }
 
 .upload-card-img {
@@ -333,21 +333,21 @@
 /* Sidebar Sections */
 .sidebar-section {
   padding: 0 20px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 /* Mobile adjustments for sections */
 @media (max-width: 767px) {
   .sidebar-section {
     padding: 0 24px;
-    margin-bottom: 28px;
+    margin-bottom: 20px;
   }
 }
 
 @media (max-width: 480px) {
   .sidebar-section {
     padding: 0 20px;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
   }
 }
 
@@ -357,20 +357,203 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   padding-left: 4px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* Mobile adjustments for section title */
+/* Section Header (Clickable) */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  margin-bottom: 4px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: transparent;
+  border: 1px solid transparent;
+}
+
+.section-header:hover {
+  background-color: #1E1E1E;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.section-header.active {
+  background-color: rgba(250, 204, 21, 0.15); /* Changed to yellow */
+  border-left: 4px solid #facc15; /* Changed to yellow */
+}
+
+.section-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.section-header-icon {
+  color: #8a8a8a;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.section-header.active .section-header-icon {
+  color: #facc15; /* Changed to yellow */
+}
+
+.section-header-title {
+  color: #D9D9D9;
+  font-size: 18px;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.section-header.active .section-header-title {
+  color: #facc15; /* Changed to yellow */
+}
+
+.section-header-arrow {
+  color: #8a8a8a;
+  width: 18px;
+  height: 18px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.6;
+}
+
+.section-header-arrow.rotated {
+  transform: rotate(90deg);
+  opacity: 1;
+  color: #facc15; /* Changed to yellow */
+}
+
+.section-header:hover .section-header-arrow {
+  opacity: 0.8;
+}
+
+/* Dropdown Menu */
+.section-dropdown {
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  max-height: 0;
+  margin-left: 36px; /* Align with icon */
+  margin-right: 4px;
+}
+
+.section-dropdown.open {
+  max-height: 300px; /* Adjust based on content */
+  margin-bottom: 8px;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  color: #D9D9D9;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  margin-bottom: 2px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  border-left: 2px solid transparent;
+}
+
+.dropdown-item:hover {
+  background-color: #1E1E1E;
+  transform: translateX(4px);
+}
+
+.dropdown-item.active {
+  background-color: rgba(250, 204, 21, 0.15); /* Changed to yellow */
+  color: #facc15; /* Changed to yellow */
+  border-left: 2px solid #facc15; /* Changed to yellow */
+}
+
+.dropdown-item.active .dropdown-item-icon {
+  color: #facc15; /* Changed to yellow */
+}
+
+.dropdown-item-icon {
+  color: #8a8a8a;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.dropdown-item-text {
+  flex: 1;
+  font-size: 15px;
+}
+
+.dropdown-arrow {
+  color: #8a8a8a;
+  opacity: 0.4;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  width: 16px;
+  height: 16px;
+}
+
+.dropdown-item:hover .dropdown-arrow {
+  opacity: 0.8;
+  transform: translateX(2px);
+}
+
+/* Mobile adjustments for dropdown */
 @media (max-width: 767px) {
-  .section-title {
-    font-size: 14px;
-    margin-bottom: 14px;
-    letter-spacing: 0.6px;
+  .section-dropdown {
+    margin-left: 40px;
+  }
+  
+  .dropdown-item {
+    padding: 14px 16px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+  
+  .dropdown-item-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .dropdown-item-text {
+    font-size: 15px;
   }
 }
 
+@media (max-width: 480px) {
+  .section-dropdown {
+    margin-left: 36px;
+  }
+  
+  .dropdown-item {
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+  
+  .dropdown-item-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .dropdown-item-text {
+    font-size: 14px;
+  }
+}
+
+/* Regular sidebar items (for non-dropdown sections) */
 .sidebar-list {
   list-style: none;
   padding: 0;
@@ -390,6 +573,7 @@
   border-radius: 10px;
   margin-bottom: 4px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  border-left: 3px solid transparent;
 }
 
 /* Mobile adjustments for sidebar items */
@@ -419,13 +603,13 @@
 }
 
 .sidebar-item.active {
-  background-color: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
-  border-left: 4px solid #3b82f6;
+  background-color: rgba(250, 204, 21, 0.15); /* Changed to yellow */
+  color: #facc15; /* Changed to yellow */
+  border-left: 3px solid #facc15; /* Changed to yellow */
 }
 
 .sidebar-item.active .item-icon {
-  color: #3b82f6;
+  color: #facc15; /* Changed to yellow */
 }
 
 .item-icon {
@@ -570,7 +754,7 @@
 }
 
 .logout-text {
-  color: #facc15;
+  color: #facc15; /* Changed to yellow */
   font-size: 18px;
   font-weight: 500;
 }
@@ -684,7 +868,7 @@
 /* Upload Card Text (if using text version instead of image) */
 .upload-card {
   background: #1E1E1E;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(250, 204, 21, 0.2); /* Changed to yellow */
   border-radius: 12px;
   padding: 20px;
   margin: 0 20px 24px;
@@ -696,19 +880,19 @@
 }
 
 .upload-card:hover {
-  border-color: rgba(59, 130, 246, 0.4);
+  border-color: rgba(250, 204, 21, 0.4); /* Changed to yellow */
   transform: translateY(-2px);
 }
 
 .upload-icon {
   width: 48px;
   height: 48px;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(250, 204, 21, 0.1); /* Changed to yellow */
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #3b82f6;
+  color: #facc15; /* Changed to yellow */
   flex-shrink: 0;
 }
 

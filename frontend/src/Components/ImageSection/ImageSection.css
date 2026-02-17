@@ -1,687 +1,144 @@
-:root {
-  /* Spacing variables */
-  --spacing-xs: 16px;
-  --spacing-sm: 24px;
-  --spacing-md: 40px;
-  --spacing-lg: 48px;
-  --spacing-xl: 80px;
-  
-  /* Colors with opacity variables */
-  --blue-primary: rgba(45, 75, 150, 0.2);
-  --blue-secondary: rgba(30, 58, 138, 0.15);
-  --blue-tertiary: rgba(20, 40, 90, 0.1);
-  --blue-quaternary: rgba(10, 20, 50, 0.08);
-  --blue-quinary: rgba(5, 8, 25, 0.05);
-  
-  /* Circle background variables */
-  --circle-primary-opacity: 0.25;
-  --circle-secondary-opacity: 0.15;
-  --circle-glow-opacity: 0.2;
-  --circle-blur: 50px;
-  --circle-secondary-blur: 60px;
-  
-  /* Card variables */
-  --card-blur: 10px;
-  --card-border-opacity: 0.05;
-  --card-shadow-opacity: 0.4;
-  
-  /* Font variables */
-  --font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
 .image-section {
-  position: relative;
   width: 100%;
-  min-height: 100vh; /* Changed from height to min-height */
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  overflow: visible; /* Changed from hidden to allow content below */
-  background: transparent;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Single Circle Background */
-.circular-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: flex-start;
   justify-content: center;
-  z-index: 1;
-  opacity: 0.6;
-  pointer-events: none;
+  padding: 40px 20px 80px; /* Top padding reduced, bottom stays */
+  box-sizing: border-box;
+  background: transparent;
 }
 
-/* Main circle */
-.single-circle {
-  position: sticky; /* Changed to sticky to stay visible while scrolling */
-  top: 40px;
-  width: min(900px, 80vw);
-  height: min(900px, 80vw);
-  border-radius: 50%;
-  background: radial-gradient(circle at center,
-      rgba(45, 75, 150, var(--circle-primary-opacity)) 0%,
-      rgba(30, 58, 138, calc(var(--circle-primary-opacity) - 0.03)) 15%,
-      rgba(20, 40, 90, calc(var(--circle-primary-opacity) - 0.05)) 30%,
-      rgba(10, 20, 50, calc(var(--circle-primary-opacity) - 0.07)) 45%,
-      rgba(5, 8, 25, calc(var(--circle-primary-opacity) - 0.1)) 60%,
-      transparent 80%);
-  box-shadow: 0 0 150px rgba(45, 75, 150, var(--circle-glow-opacity));
-  z-index: 1;
-  filter: blur(var(--circle-blur));
-}
-
-/* Secondary circle */
-.single-circle::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(650px, 60vw);
-  height: min(650px, 60vw);
-  border-radius: 50%;
-  background: radial-gradient(circle at center,
-      rgba(60, 100, 200, var(--circle-secondary-opacity)) 0%,
-      transparent 70%);
-  filter: blur(var(--circle-secondary-blur));
-}
-
-/* Content Styles */
-.content {
-  position: relative;
-  z-index: 20;
-  text-align: center;
-  width: 100%;
-  max-width: 1600px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 40px 20px 20px;
-  background: transparent; /* Ensure no background */
-}
-
-/* Images Container */
-.images-container {
+.image-grid {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: flex-start;
   gap: 40px;
-  flex-wrap: nowrap;
   width: 100%;
-  margin: 0 auto;
-  padding: 0;
-  background: transparent; /* Ensure no background */
+  max-width: 1200px;
+  flex-wrap: nowrap; /* keeps them in a row */
 }
 
-/* Individual Image Container */
-.image-container {
+
+/* Card remains the same */
+.card {
   position: relative;
-  width: 100%;
-  max-width: 500px;
-  border-radius: 30px;
+  width: 198px;
+  height: 256px;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, var(--card-shadow-opacity)),
-              0 0 0 1px rgba(255, 255, 255, var(--card-border-opacity)) inset;
-  z-index: 30;
-  flex: 1 1 0;
-  background: rgba(15, 15, 15, 0.5);
-  backdrop-filter: blur(var(--card-blur));
-  -webkit-backdrop-filter: blur(var(--card-blur));
-  display: flex;
-  flex-direction: column;
-  margin-top: 0;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex-shrink: 0;
+  flex-grow: 0;
 }
 
-/* Image wrapper */
-.image-container::before {
-  content: '';
-  display: block;
-  padding-top: 120%;
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
 }
 
-.image-container img {
-  position: absolute;
-  top: 0;
-  left: 0;
+/* Image - Aligned to TOP */
+.card img {
   width: 100%;
   height: 100%;
-  display: block;
   object-fit: cover;
-  object-position: center;
+  object-position: top; /* ✅ This aligns image to the top */
+  display: block; /* Removes any extra space below image */
 }
 
-/* Gradient overlay */
-.image-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(180deg,
-      transparent 0%,
-      rgba(0, 0, 0, 0.4) 100%);
-  pointer-events: none;
-  mix-blend-mode: multiply;
-  opacity: 0.4;
-  z-index: 2;
-}
-
-/* Image caption */
-.image-caption {
+.overlay {
   position: absolute;
   bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 20px 20px 18px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.4) 80%, transparent);
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85),
+    rgba(0, 0, 0, 0.5),
+    transparent
+  );
   color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: none;
-  z-index: 3;
+  box-sizing: border-box;
 }
 
-.caption-title {
-  font-size: 16px;
+.overlay h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
   font-weight: 600;
-  margin-bottom: 4px;
-  letter-spacing: 0.2px;
 }
 
-.caption-description {
+.overlay p {
+  margin: 0;
   font-size: 12px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.8);
+  opacity: 0.85;
   line-height: 1.4;
-  opacity: 0.9;
 }
 
-/* ===== DESKTOP BREAKPOINTS ===== */
+/* ===== Responsive Scaling ===== */
 
-/* Large Desktop */
-@media (min-width: 2000px) {
-  .single-circle {
-    width: 1100px;
-    height: 1100px;
-    top: 60px;
-  }
-
-  .single-circle::after {
-    width: 800px;
-    height: 800px;
-  }
-
-  .image-container {
-    max-width: 600px;
-  }
-  
-  .content {
-    padding-top: 60px;
-  }
-}
-
-/* Desktop */
-@media (min-width: 1200px) and (max-width: 1999px) {
-  .image-container {
-    max-width: 450px;
-  }
-  
-  .single-circle {
-    width: 850px;
-    height: 850px;
-    top: 50px;
-  }
-  
-  .single-circle::after {
-    width: 600px;
-    height: 600px;
-  }
-  
-  .content {
-    padding-top: 50px;
-  }
-}
-
-/* Small Desktop */
-@media (min-width: 901px) and (max-width: 1199px) {
-  .image-container {
-    max-width: 380px;
-  }
-  
-  .images-container {
+@media (max-width: 1024px) {
+  .image-grid {
     gap: 30px;
   }
   
-  .single-circle {
-    width: 750px;
-    height: 750px;
-    top: 40px;
-  }
-  
-  .single-circle::after {
-    width: 550px;
-    height: 550px;
-  }
-  
-  .content {
-    padding-top: 40px;
+  .card {
+    width: 178px;
+    height: 236px;
   }
 }
 
-/* Tablet Landscape */
-@media (min-width: 701px) and (max-width: 900px) {
-  .image-container {
-    max-width: 300px;
-  }
-  
-  .images-container {
-    gap: 25px;
-  }
-  
-  .image-caption {
-    padding: 16px 16px 14px;
-  }
-  
-  .single-circle {
-    width: 650px;
-    height: 650px;
-    top: 30px;
-  }
-  
-  .single-circle::after {
-    width: 500px;
-    height: 500px;
-  }
-  
-  .content {
-    padding-top: 30px;
-  }
-}
-
-/* ===== MOBILE BREAKPOINT ===== */
-@media (max-width: 700px) {
-  .image-section {
-    min-height: 100vh;
-    padding: 0;
-    overflow: visible;
-  }
-  
-  .circular-background {
-    top: 0;
-    opacity: 0.5;
-  }
-
-  .single-circle {
-    width: min(1000px, 180vw);
-    height: min(1000px, 180vw);
-    top: 20px;
-    filter: blur(80px);
-    background: radial-gradient(circle at center,
-        rgba(45, 75, 150, 0.35) 0%,
-        rgba(30, 58, 138, 0.3) 20%,
-        rgba(20, 40, 90, 0.25) 40%,
-        rgba(10, 20, 50, 0.2) 60%,
-        rgba(5, 8, 25, 0.15) 80%,
-        transparent 100%);
-  }
-
-  .single-circle::after {
-    width: min(750px, 150vw);
-    height: min(750px, 150vw);
-    filter: blur(90px);
-    background: radial-gradient(circle at center,
-        rgba(60, 100, 200, 0.25) 0%,
-        transparent 80%);
-  }
-
-  .content {
-    padding: 20px 20px 40px;
-    margin: 0;
-    width: 100%;
-    background: transparent;
-  }
-
-  .images-container {
-    flex-direction: column;
-    align-items: center;
-    gap: 40px;
-    width: 100%;
-    padding: 0;
-    background: transparent;
-  }
-
-  .image-container {
-    max-width: 480px;
-    width: 100%;
-    margin: 0 auto;
-    flex: none;
-    box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .image-container::before {
-    padding-top: 120%;
-  }
-
-  .image-caption {
-    padding: 22px 20px 20px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.5) 80%, transparent);
-  }
-  
-  .caption-title {
-    font-size: 18px;
-    margin-bottom: 6px;
-  }
-  
-  .caption-description {
-    font-size: 14px;
-    line-height: 1.5;
-  }
-}
-
-/* Small Mobile */
-@media (max-width: 500px) {
-  .image-section {
-    padding: 0;
-  }
-  
-  .single-circle {
-    width: min(1100px, 200vw);
-    height: min(1100px, 200vw);
-    top: 15px;
-    filter: blur(90px);
-  }
-
-  .single-circle::after {
-    width: min(850px, 170vw);
-    height: min(850px, 170vw);
-    filter: blur(100px);
-  }
-
-  .images-container {
-    gap: 35px;
-  }
-
-  .image-container {
-    max-width: 400px;
-  }
-  
-  .image-caption {
-    padding: 20px 18px 18px;
-  }
-  
-  .caption-title {
-    font-size: 17px;
-  }
-  
-  .caption-description {
-    font-size: 13px;
-  }
-  
-  .content {
-    padding: 15px 16px 30px;
-  }
-}
-
-/* Extra Small Mobile */
-@media (max-width: 400px) {
-  .image-section {
-    padding: 0;
-  }
-  
-  .single-circle {
-    width: min(1200px, 220vw);
-    height: min(1200px, 220vw);
-    top: 10px;
-    filter: blur(100px);
-  }
-
-  .single-circle::after {
-    width: min(950px, 190vw);
-    height: min(950px, 190vw);
-    filter: blur(110px);
-  }
-
-  .images-container {
-    gap: 30px;
-  }
-
-  .image-container {
-    max-width: 340px;
-  }
-  
-  .image-caption {
-    padding: 18px 16px 16px;
-  }
-  
-  .caption-title {
-    font-size: 16px;
-  }
-  
-  .caption-description {
-    font-size: 12px;
-  }
-  
-  .content {
-    padding: 10px 12px 25px;
-  }
-}
-
-/* Very Small Mobile */
-@media (max-width: 360px) {
-  .image-section {
-    padding: 0;
-  }
-  
-  .single-circle {
-    width: min(1300px, 240vw);
-    height: min(1300px, 240vw);
-    top: 5px;
-  }
-
-  .single-circle::after {
-    width: min(1050px, 210vw);
-    height: min(1050px, 210vw);
-  }
-
-  .images-container {
-    gap: 25px;
-  }
-
-  .image-container {
-    max-width: 300px;
-  }
-  
-  .image-caption {
-    padding: 16px 14px 14px;
-  }
-  
-  .caption-title {
-    font-size: 15px;
-  }
-  
-  .caption-description {
-    font-size: 11px;
-  }
-  
-  .content {
-    padding: 5px 10px 20px;
-  }
-}
-
-/* Handle notched phones */
-@supports (padding: max(0px)) {
-  @media (max-width: 700px) {
-    .image-section {
-      padding-left: 0;
-      padding-right: 0;
-    }
-    
-    .content {
-      padding-left: max(20px, env(safe-area-inset-left));
-      padding-right: max(20px, env(safe-area-inset-right));
-      padding-top: max(20px, env(safe-area-inset-top));
-      padding-bottom: max(40px, env(safe-area-inset-bottom));
-    }
-  }
-}
-
-/* Landscape orientation */
-@media (max-height: 600px) and (orientation: landscape) and (max-width: 900px) {
-  .image-section {
-    min-height: 100vh;
-    padding: 0;
-    overflow: visible;
-  }
-
-  .images-container {
-    flex-direction: row;
-    flex-wrap: wrap;
+@media (max-width: 768px) {
+  .image-grid {
     gap: 20px;
-    justify-content: center;
+    overflow-x: auto;
+    padding: 10px;
+    justify-content: flex-start;
   }
 
-  .image-container {
-    max-width: 280px;
-    width: calc(50% - 20px);
+  .card {
+    width: 158px;
+    height: 216px;
   }
   
-  .single-circle {
-    width: min(800px, 100vh);
-    height: min(800px, 100vh);
-    top: 20px;
-  }
-  
-  .single-circle::after {
-    width: min(600px, 80vh);
-    height: min(600px, 80vh);
-  }
-  
-  .caption-title {
-    font-size: 16px;
-  }
-  
-  .caption-description {
-    font-size: 12px;
-  }
-  
-  .content {
-    padding: 20px 30px 30px;
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .image-container {
-    background: rgba(20, 20, 20, 0.4);
-  }
-}
-
-/* Reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* Print styles */
-@media print {
-  .image-section {
-    background: transparent;
-    padding: 20px;
-    min-height: auto;
-    overflow: visible;
-  }
-  
-  .circular-background,
-  .image-section::before,
-  .image-overlay {
+  .image-grid::-webkit-scrollbar {
     display: none;
   }
   
-  .image-container {
-    break-inside: avoid;
-    box-shadow: none;
-    border: 1px solid #ccc;
-    background: white;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-  
-  .image-container img {
-    filter: grayscale(100%);
-  }
-  
-  .image-caption {
-    position: relative;
-    background: none;
-    color: black;
-    padding: 10px 0;
-  }
-  
-  .caption-title,
-  .caption-description {
-    color: #333;
+  .image-grid {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .image-container {
-    border: 2px solid white;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    background: rgba(0, 0, 0, 0.8);
+@media (max-width: 480px) {
+  .image-grid {
+    gap: 15px;
+    padding: 15px;
   }
-  
-  .image-caption {
-    background: black;
+
+  .card {
+    width: 138px;
+    height: 196px;
   }
-  
-  .single-circle {
-    opacity: 0.15;
-    filter: blur(10px);
+
+  .overlay h3 {
+    font-size: 13px;
+  }
+
+  .overlay p {
+    font-size: 11px;
   }
 }
 
-.circular-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 140%;               /* or 120–160% — small overshoot only */
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  z-index: 1;
-  opacity: 0.65;
-  pointer-events: none;
+@media (max-width: 360px) {
+  .card {
+    width: 118px;
+    height: 166px;
+  }
+  
+  .overlay {
+    padding: 12px;
+  }
 }
 
-.single-circle {
-  position: relative;         /* or absolute */
-  top: -15%;                  /* gentle pull upward */
-  width: min(1000px, 85vw);
-  height: min(1000px, 85vw);
-  margin-top: 0;
-  /* rest remains similar */
-}
 

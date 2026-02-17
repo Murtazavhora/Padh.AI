@@ -3,7 +3,7 @@ import {
   FiUser, FiSettings, FiFileText, 
   FiBookOpen, FiHeadphones, FiBell, FiCalendar, 
   FiHelpCircle, FiUserPlus, FiLogOut, 
-  FiChevronRight
+  FiChevronRight, FiChevronDown
 } from 'react-icons/fi';
 import './Header.css';
 
@@ -14,6 +14,10 @@ function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [activeItem, setActiveItem] = useState('');
+  const [openSections, setOpenSections] = useState({
+    learning: false, // Learning section starts closed
+    other: false     // Other section starts closed
+  });
 
   const handleMenuClick = () => {
     if (!menuOpen) {
@@ -29,11 +33,42 @@ function Header() {
 
   const handleItemClick = (itemName) => {
     setActiveItem(itemName);
-    setTimeout(() => {
-      setActiveItem('');
-      closeSidebar();
-    }, 300);
+    // Don't close sidebar immediately for better UX
+    // The sidebar will close when the user clicks the overlay or hamburger again
   };
+
+  const toggleSection = (section) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const handleLearningHeaderClick = () => {
+    toggleSection('learning');
+    setActiveItem('learning');
+  };
+
+  const handleOtherHeaderClick = () => {
+    toggleSection('other');
+    setActiveItem('other');
+  };
+
+  // Learning items data
+  const learningItems = [
+    { id: 'upload-doc', icon: FiFileText, text: 'Upload Document' },
+    { id: 'summary', icon: FiFileText, text: 'Generate Summary' },
+    { id: 'quiz', icon: FiBookOpen, text: 'Practice Quiz' },
+    { id: 'assistant', icon: FiHeadphones, text: 'AI Assistant' }
+  ];
+
+  // Other items data
+  const otherItems = [
+    { id: 'notifications', icon: FiBell, text: 'Notifications' },
+    { id: 'calendar', icon: FiCalendar, text: 'Calendar' },
+    { id: 'help', icon: FiHelpCircle, text: 'Help & Support' },
+    { id: 'invite', icon: FiUserPlus, text: 'Invite Friends' }
+  ];
 
   return (
     <>
@@ -70,7 +105,7 @@ function Header() {
             <img src={uploadImage} alt="Upload Document" className="upload-card-img" />
           </div>
 
-          {/* Account Section */}
+          {/* Account Section - Regular items (no dropdown) */}
           <div className="sidebar-section">
             <h4 className="section-title">Account</h4>
             <ul className="sidebar-list">
@@ -78,97 +113,81 @@ function Header() {
                 className={`sidebar-item ${activeItem === 'profile' ? 'active' : ''}`}
                 onClick={() => handleItemClick('profile')}
               >
-                <FiUser className="item-icon" size={16} />
+                <FiUser className="item-icon" />
                 <span className="item-text">Your Profile</span>
-                <FiChevronRight className="arrow-icon" size={14} />
+                <FiChevronRight className="arrow-icon" />
               </li>
               <li 
                 className={`sidebar-item ${activeItem === 'settings' ? 'active' : ''}`}
                 onClick={() => handleItemClick('settings')}
               >
-                <FiSettings className="item-icon" size={16} />
+                <FiSettings className="item-icon" />
                 <span className="item-text">Account Settings</span>
-                <FiChevronRight className="arrow-icon" size={14} />
+                <FiChevronRight className="arrow-icon" />
               </li>
             </ul>
           </div>
 
-          {/* Learning Section */}
+          {/* Learning Section - With Dropdown */}
           <div className="sidebar-section">
-            <h4 className="section-title">Learning</h4>
-            <ul className="sidebar-list">
-              <li 
-                className={`sidebar-item ${activeItem === 'upload-doc' ? 'active' : ''}`}
-                onClick={() => handleItemClick('upload-doc')}
-              >
-                <FiFileText className="item-icon" size={16} />
-                <span className="item-text">Upload Document</span>
-                <FiChevronRight className="arrow-icon" size={14} />
-              </li>
-              <li 
-                className={`sidebar-item ${activeItem === 'summary' ? 'active' : ''}`}
-                onClick={() => handleItemClick('summary')}
-              >
-                <FiFileText className="item-icon" size={16} />
-                <span className="item-text">Generate Summary</span>
-                <FiChevronRight className="arrow-icon" size={14} />
-              </li>
-              <li 
-                className={`sidebar-item ${activeItem === 'quiz' ? 'active' : ''}`}
-                onClick={() => handleItemClick('quiz')}
-              >
-                <FiBookOpen className="item-icon" size={16} />
-                <span className="item-text">Practice Quiz</span>
-                <FiChevronRight className="arrow-icon" size={14} />
-              </li>
-              <li 
-                className={`sidebar-item ${activeItem === 'assistant' ? 'active' : ''}`}
-                onClick={() => handleItemClick('assistant')}
-              >
-                <FiHeadphones className="item-icon" size={16} />
-                <span className="item-text">AI Assistant</span>
-                <FiChevronRight className="arrow-icon" size={14} />
-              </li>
-            </ul>
+            <div 
+              className={`section-header ${activeItem === 'learning' ? 'active' : ''}`}
+              onClick={handleLearningHeaderClick}
+            >
+              <div className="section-header-left">
+                <FiBookOpen className="section-header-icon" />
+                <span className="section-header-title">Learning</span>
+              </div>
+              <FiChevronDown className={`section-header-arrow ${openSections.learning ? 'rotated' : ''}`} />
+            </div>
+            
+            <div className={`section-dropdown ${openSections.learning ? 'open' : ''}`}>
+              {learningItems.map((item) => {
+                const IconComponent = item.icon;
+                return (
+                  <div
+                    key={item.id}
+                    className={`dropdown-item ${activeItem === item.id ? 'active' : ''}`}
+                    onClick={() => handleItemClick(item.id)}
+                  >
+                    <IconComponent className="dropdown-item-icon" />
+                    <span className="dropdown-item-text">{item.text}</span>
+                    <FiChevronRight className="dropdown-arrow" />
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Other Section */}
+          {/* Other Section - With Dropdown */}
           <div className="sidebar-section">
-            <h4 className="section-title">Other</h4>
-            <ul className="sidebar-list">
-              <li 
-                className={`sidebar-item ${activeItem === 'notifications' ? 'active' : ''}`}
-                onClick={() => handleItemClick('notifications')}
-              >
-                <FiBell className="item-icon" size={16} />
-                <span className="item-text">Notifications</span>
-                <FiChevronRight className="arrow-icon" size={14} />
-              </li>
-              <li 
-                className={`sidebar-item ${activeItem === 'calendar' ? 'active' : ''}`}
-                onClick={() => handleItemClick('calendar')}
-              >
-                <FiCalendar className="item-icon" size={16} />
-                <span className="item-text">Calendar</span>
-                <FiChevronRight className="arrow-icon" size={14} />
-              </li>
-              <li 
-                className={`sidebar-item ${activeItem === 'help' ? 'active' : ''}`}
-                onClick={() => handleItemClick('help')}
-              >
-                <FiHelpCircle className="item-icon" size={16} />
-                <span className="item-text">Help & Support</span>
-                <FiChevronRight className="arrow-icon" size={14} />
-              </li>
-              <li 
-                className={`sidebar-item ${activeItem === 'invite' ? 'active' : ''}`}
-                onClick={() => handleItemClick('invite')}
-              >
-                <FiUserPlus className="item-icon" size={16} />
-                <span className="item-text">Invite Friends</span>
-                <FiChevronRight className="arrow-icon" size={14} />
-              </li>
-            </ul>
+            <div 
+              className={`section-header ${activeItem === 'other' ? 'active' : ''}`}
+              onClick={handleOtherHeaderClick}
+            >
+              <div className="section-header-left">
+                <FiBell className="section-header-icon" />
+                <span className="section-header-title">Other</span>
+              </div>
+              <FiChevronDown className={`section-header-arrow ${openSections.other ? 'rotated' : ''}`} />
+            </div>
+            
+            <div className={`section-dropdown ${openSections.other ? 'open' : ''}`}>
+              {otherItems.map((item) => {
+                const IconComponent = item.icon;
+                return (
+                  <div
+                    key={item.id}
+                    className={`dropdown-item ${activeItem === item.id ? 'active' : ''}`}
+                    onClick={() => handleItemClick(item.id)}
+                  >
+                    <IconComponent className="dropdown-item-icon" />
+                    <span className="dropdown-item-text">{item.text}</span>
+                    <FiChevronRight className="dropdown-arrow" />
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Logout - Centered Content */}
@@ -178,7 +197,7 @@ function Header() {
               onClick={() => handleItemClick('logout')}
             >
               <div className="logout-content">
-                <FiLogOut className="logout-icon" size={16} />
+                <FiLogOut className="logout-icon" />
                 <span className="logout-text">Logout</span>
               </div>
             </div>

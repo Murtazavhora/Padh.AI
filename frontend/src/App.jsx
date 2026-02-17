@@ -1,6 +1,7 @@
 import Header from './Components/Header/Header'
 import HeadingLayout from './Components/HeadingLayout/HeadingLayout';
 import MainLayout from './Components/MainLayout/MainLayout';
+import Footer from './Components/Footer/Footer';
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
       <Header />
       <HeadingLayout />
       <MainLayout />
+      <Footer/>
     </>
   )
 }
