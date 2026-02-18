@@ -1,0 +1,970 @@
+/* RecommendedPage.css - Complete with all fixes */
+.rec-page {
+  min-height: 100vh;
+  background: #000000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
+  position: relative;
+  color: #ffffff;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+/* Subtle ambient background */
+.rec-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 40%, rgba(250, 204, 21, 0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Main Container - 1.5% side padding on desktop */
+.rec-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 60px 1.5% 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Row */
+.rec-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  margin-top: 20px;
+  flex-wrap: nowrap;
+  gap: 20px;
+  width: 100%;
+}
+
+/* Page Title - Matching SummaryPage exactly */
+.rec-page-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Back Button */
+.rec-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #111111;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.rec-back-button:hover {
+  border-color: #facc15;
+  background: #1a1a1a;
+  transform: translateX(-4px);
+}
+
+.rec-back-button svg {
+  width: 18px;
+  height: 18px;
+  color: #facc15;
+  flex-shrink: 0;
+}
+
+/* Philosophy Section */
+.rec-philosophy {
+  background: #0c0c0c;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.rec-philosophy-text {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #b0b0b0;
+  margin: 0;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Mode Toggle - Always side by side */
+.rec-mode-toggle {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.rec-mode-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #111111;
+  border: 1px solid #2a2a2a;
+  border-radius: 30px;
+  padding: 12px 24px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.rec-mode-btn:hover:not(:disabled) {
+  border-color: #facc15;
+  background: #1a1a1a;
+  transform: translateY(-2px);
+}
+
+.rec-mode-btn.active {
+  background: #facc15;
+  color: #000000;
+  border-color: #facc15;
+}
+
+.rec-mode-btn.active svg {
+  color: #000000;
+}
+
+.rec-mode-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.rec-mode-btn svg {
+  color: #facc15;
+  flex-shrink: 0;
+}
+
+/* Action Row */
+.rec-action-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 30px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.rec-topic-form {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 300px;
+}
+
+.rec-topic-input {
+  flex: 1;
+  padding: 14px 18px;
+  background: #111111;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 15px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.rec-topic-input:focus {
+  outline: none;
+  border-color: #facc15;
+  background: #1a1a1a;
+}
+
+.rec-topic-input::placeholder {
+  color: #666666;
+}
+
+.rec-topic-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rec-topic-buttons {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.rec-generate-btn {
+  background: #facc15;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 24px;
+  color: #000000;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(250, 204, 21, 0.2);
+  white-space: nowrap;
+}
+
+.rec-generate-btn:hover:not(:disabled) {
+  background: #e5b800;
+  transform: translateY(-2px);
+}
+
+.rec-generate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rec-action-buttons-group {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.rec-clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #111111;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 14px 20px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.rec-clear-btn:hover {
+  border-color: #facc15;
+  background: #1a1a1a;
+  transform: translateY(-2px);
+}
+
+.rec-clear-btn svg {
+  color: #facc15;
+}
+
+/* Blank Header */
+.rec-blank-header {
+  flex: 1;
+}
+
+.rec-blank-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: #ffffff;
+}
+
+.rec-blank-subtitle {
+  font-size: 14px;
+  color: #888888;
+  margin: 0;
+}
+
+/* Questions Section */
+.rec-questions-section {
+  background: #0c0c0c;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.rec-questions-header {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #1e1e1e;
+}
+
+.rec-questions-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  color: #ffffff;
+}
+
+.rec-questions-subtitle {
+  font-size: 14px;
+  color: #888888;
+  margin: 0;
+}
+
+/* Formatting Toolbar */
+.rec-formatting-toolbar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #111111;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  position: sticky;
+  top: 80px;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.rec-toolbar-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.rec-style-btn {
+  width: 40px;
+  height: 40px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rec-style-btn:hover {
+  border-color: #facc15;
+  background: #2a2a2a;
+  transform: translateY(-2px);
+}
+
+.rec-style-btn.rec-active {
+  border-color: #facc15;
+  background: #2a2a2a;
+}
+
+/* Scrollable Content Area */
+.rec-scrollable-content {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 8px;
+  margin-bottom: 20px;
+}
+
+.rec-scrollable-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.rec-scrollable-content::-webkit-scrollbar-track {
+  background: #111111;
+  border-radius: 4px;
+}
+
+.rec-scrollable-content::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+.rec-scrollable-content::-webkit-scrollbar-thumb:hover {
+  background: #facc15;
+}
+
+/* Question Items */
+.rec-question-item {
+  background: #111111;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.rec-question-item:last-child {
+  margin-bottom: 0;
+}
+
+.rec-question-item:focus-within {
+  border-color: #facc15;
+}
+
+.rec-question-text {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #ffffff;
+}
+
+.rec-question-number {
+  font-weight: 600;
+  color: #facc15;
+  flex-shrink: 0;
+  min-width: 30px;
+}
+
+.rec-question-text p {
+  margin: 0;
+  color: #e0e0e0;
+}
+
+/* Answer Input */
+.rec-answer-input {
+  width: 100%;
+  padding: 14px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 15px;
+  font-family: 'Courier New', monospace;
+  resize: vertical;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.rec-answer-input:focus {
+  outline: none;
+  border-color: #facc15;
+  background: #222222;
+}
+
+.rec-answer-input::selection {
+  background: #facc15;
+  color: #000000;
+}
+
+/* Blank Note Input */
+.rec-blank-note-input {
+  min-height: 350px;
+}
+
+/* Formatted Preview */
+.rec-formatted-preview {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 14px;
+  margin-top: 8px;
+}
+
+.rec-preview-label {
+  font-size: 12px;
+  color: #888888;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rec-preview-content {
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'Courier New', monospace;
+}
+
+.rec-preview-content div {
+  margin-bottom: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Formatted Text Styles */
+.rec-bullet {
+  color: #facc15;
+  font-weight: bold;
+  margin-right: 8px;
+  display: inline-block;
+}
+
+.rec-bold {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.rec-italic {
+  font-style: italic;
+  color: #ffffff;
+}
+
+.rec-underline {
+  text-decoration: underline;
+  color: #ffffff;
+}
+
+.rec-highlight {
+  background-color: #facc15;
+  color: #000000;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+/* Footer Buttons - Always in one line */
+.rec-footer-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #1e1e1e;
+  width: 100%;
+}
+
+.rec-action-btn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #111111;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 14px 8px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.rec-action-btn svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+.rec-action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.rec-action-btn.rec-download:hover {
+  border-color: #2CD4A5;
+  color: #2CD4A5;
+}
+
+.rec-action-btn.rec-print:hover {
+  border-color: #4D9FFF;
+  color: #4D9FFF;
+}
+
+.rec-action-btn.rec-share:hover {
+  border-color: #facc15;
+  color: #facc15;
+}
+
+/* Empty State */
+.rec-empty-state {
+  background: #0c0c0c;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  padding: 60px 20px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.rec-empty-icon {
+  font-size: 48px;
+  color: #facc15;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.rec-empty-state h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #ffffff;
+}
+
+.rec-empty-state p {
+  font-size: 14px;
+  color: #888888;
+  margin: 0;
+}
+
+/* Formatting Hint */
+.rec-formatting-hint {
+  margin-top: 16px;
+  padding: 12px;
+  background: #111111;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #888888;
+  text-align: center;
+}
+
+.rec-formatting-hint p {
+  margin: 0;
+}
+
+/* Tablet and below - keep 1.5% padding */
+@media (max-width: 1024px) {
+  .rec-container {
+    padding: 50px 2% 50px; /* Slightly increased side padding */
+  }
+  
+  .rec-page-title {
+    font-size: 28px;
+  }
+}
+
+/* Mobile - reduced top spacing by 5px with more side spacing */
+@media (max-width: 768px) {
+  .rec-page {
+    padding-top: 20px;
+  }
+  
+  .rec-container {
+    padding: 55px 3% 50px; /* Increased side padding from 1.5% to 3% */
+  }
+  
+  .rec-header-row {
+    margin-top: 20px;
+    margin-bottom: 25px;
+  }
+  
+  .rec-page-title {
+    font-size: 26px;
+  }
+  
+  .rec-back-button {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  /* Mode toggle stays side by side */
+  .rec-mode-toggle {
+    flex-direction: row;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  
+  .rec-mode-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    max-width: 180px;
+  }
+  
+  .rec-action-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .rec-topic-form {
+    min-width: 100%;
+  }
+  
+  .rec-action-buttons-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .rec-clear-btn {
+    flex: 1;
+  }
+  
+  .rec-blank-header {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  
+  .rec-questions-section {
+    padding: 20px;
+  }
+  
+  .rec-questions-title {
+    font-size: 20px;
+  }
+  
+  .rec-scrollable-content {
+    max-height: 450px;
+  }
+  
+  /* Footer buttons stay in row */
+  .rec-footer-buttons {
+    flex-direction: row;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  
+  .rec-action-btn {
+    padding: 12px 4px;
+    font-size: 13px;
+  }
+  
+  .rec-action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .rec-container {
+    padding: 50px 3.5% 45px; /* Increased side padding */
+  }
+  
+  .rec-mode-btn {
+    padding: 10px 12px;
+    font-size: 13px;
+    gap: 6px;
+  }
+  
+  .rec-mode-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .rec-footer-buttons {
+    gap: 6px;
+  }
+  
+  .rec-action-btn {
+    padding: 12px 2px;
+    font-size: 12px;
+  }
+  
+  .rec-action-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rec-page {
+    padding-top: 15px;
+  }
+  
+  .rec-container {
+    padding: 45px 4% 40px; /* Even more side padding for small mobile */
+  }
+  
+  .rec-header-row {
+    gap: 10px;
+    margin-bottom: 22px;
+    margin-top: 15px;
+  }
+  
+  .rec-page-title {
+    font-size: 24px;
+  }
+  
+  .rec-back-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .rec-back-button svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .rec-mode-toggle {
+    gap: 6px;
+  }
+  
+  .rec-mode-btn {
+    padding: 8px 10px;
+    font-size: 12px;
+    gap: 4px;
+    max-width: 160px;
+  }
+  
+  .rec-mode-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .rec-philosophy {
+    padding: 16px;
+  }
+  
+  .rec-philosophy-text {
+    font-size: 14px;
+  }
+  
+  .rec-topic-input {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+  
+  .rec-generate-btn {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  
+  .rec-clear-btn {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+  
+  .rec-blank-title {
+    font-size: 16px;
+  }
+  
+  .rec-blank-subtitle {
+    font-size: 13px;
+  }
+  
+  .rec-questions-section {
+    padding: 16px;
+  }
+  
+  .rec-questions-title {
+    font-size: 18px;
+  }
+  
+  .rec-questions-subtitle {
+    font-size: 13px;
+  }
+  
+  .rec-formatting-toolbar {
+    padding: 10px;
+  }
+  
+  .rec-style-btn {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .rec-question-item {
+    padding: 16px;
+  }
+  
+  .rec-question-text {
+    font-size: 15px;
+  }
+  
+  .rec-answer-input {
+    padding: 12px;
+    font-size: 14px;
+  }
+  
+  .rec-blank-note-input {
+    min-height: 300px;
+  }
+  
+  .rec-scrollable-content {
+    max-height: 400px;
+  }
+  
+  /* Footer buttons stay in row */
+  .rec-footer-buttons {
+    gap: 5px;
+  }
+  
+  .rec-action-btn {
+    padding: 10px 2px;
+    font-size: 11px;
+  }
+  
+  .rec-action-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .rec-page {
+    padding-top: 15px;
+  }
+  
+  .rec-container {
+    padding: 40px 4.5% 35px; /* Maximum side padding for very small screens */
+  }
+  
+  .rec-header-row {
+    gap: 6px;
+    margin-top: 12px;
+  }
+  
+  .rec-page-title {
+    font-size: 22px;
+  }
+  
+  .rec-back-button {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  
+  .rec-mode-toggle {
+    gap: 4px;
+  }
+  
+  .rec-mode-btn {
+    padding: 8px 8px;
+    font-size: 11px;
+    gap: 3px;
+    max-width: 140px;
+  }
+  
+  .rec-mode-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .rec-style-btn {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .rec-question-text {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  /* Footer buttons stay in row */
+  .rec-footer-buttons {
+    gap: 4px;
+  }
+  
+  .rec-action-btn {
+    padding: 8px 2px;
+    font-size: 10px;
+  }
+  
+  .rec-action-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+}

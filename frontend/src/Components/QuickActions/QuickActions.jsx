@@ -51,9 +51,8 @@ function QuickActions({ onNavigate }) {
         if (file) {
           const fileName = file.name;
           const fileType = fileName.split('.').pop().toLowerCase();
-          const fileSize = file.size; // Get file size in bytes
+          const fileSize = file.size;
           
-          // Format file size
           const sizes = ['Bytes', 'KB', 'MB', 'GB'];
           const i = Math.floor(Math.log(fileSize) / Math.log(1024));
           const formattedSize = Math.round(fileSize / Math.pow(1024, i)) + ' ' + sizes[i];
@@ -76,7 +75,7 @@ function QuickActions({ onNavigate }) {
   const handleTryNow = useCallback(() => {
     console.log('🎯 Try now clicked');
     if (onNavigate) {
-      onNavigate('summary');
+      onNavigate('recommended'); // Navigate to recommended page
     }
   }, [onNavigate]);
 
@@ -148,7 +147,7 @@ function QuickActions({ onNavigate }) {
               </div>
             </div>
 
-            {/* Recommended Section */}
+            {/* Recommended Section - Dashboard version (unchanged) */}
             <div className="recommended-section">
               <div className="qa-header">
                 <div className="header-left">
