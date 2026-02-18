@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   FiUser, FiSettings, FiFileText, 
   FiBookOpen, FiHeadphones, FiBell, FiCalendar, 
@@ -10,14 +10,29 @@ import './Header.css';
 // Import the upload image
 import uploadImage from '../../assets/update.png';
 
-function Header() {
+function Header({ onNavigate, currentView }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [activeItem, setActiveItem] = useState('');
   const [openSections, setOpenSections] = useState({
-    learning: false, // Learning section starts closed
-    other: false     // Other section starts closed
+    learning: false,
+    other: false
   });
+
+  // Update active item based on current view
+  useEffect(() => {
+    if (currentView === 'summary') {
+      setActiveItem('summary');
+    } else if (currentView === 'quiz') {
+      setActiveItem('quiz');
+    } else if (currentView === 'assistant') {
+      setActiveItem('assistant');
+    } else if (currentView === 'recommended') {
+      setActiveItem('recommended');
+    } else if (currentView === 'home') {
+      setActiveItem('');
+    }
+  }, [currentView]);
 
   const handleMenuClick = () => {
     if (!menuOpen) {
@@ -33,8 +48,97 @@ function Header() {
 
   const handleItemClick = (itemName) => {
     setActiveItem(itemName);
-    // Don't close sidebar immediately for better UX
-    // The sidebar will close when the user clicks the overlay or hamburger again
+    
+    // Handle navigation for different items - navigates immediately
+    if (itemName === 'summary' && onNavigate) {
+      onNavigate('summary');
+    }
+    
+    if (itemName === 'quiz' && onNavigate) {
+      onNavigate('quiz');
+    }
+    
+    if (itemName === 'assistant' && onNavigate) {
+      onNavigate('assistant');
+    }
+    
+    if (itemName === 'upload-doc') {
+      console.log('Upload document clicked');
+      // Trigger file upload
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.pdf,.doc,.docx,.txt,.jpg,.jpeg,.png';
+      input.multiple = false;
+      
+      input.onchange = (event) => {
+        const file = event.target.files?.[0];
+        if (file) {
+          const fileName = file.name;
+          const fileType = fileName.split('.').pop().toLowerCase();
+          const fileSize = file.size;
+          
+          // Format file size
+          const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+          const i = Math.floor(Math.log(fileSize) / Math.log(1024));
+          const formattedSize = Math.round(fileSize / Math.pow(1024, i)) + ' ' + sizes[i];
+          
+          if (window.addRecentDocument) {
+            window.addRecentDocument(fileName, fileType, formattedSize);
+          }
+          
+          console.log(`📄 Uploaded: ${fileName} (${formattedSize})`);
+        }
+        input.remove();
+      };
+      
+      input.click();
+    }
+    
+    if (itemName === 'profile') {
+      console.log('Profile clicked - navigate to profile page');
+      // If you have a profile page, uncomment below
+      // if (onNavigate) onNavigate('profile');
+    }
+    
+    if (itemName === 'settings') {
+      console.log('Settings clicked - navigate to settings page');
+      // if (onNavigate) onNavigate('settings');
+    }
+    
+    if (itemName === 'notifications') {
+      console.log('Notifications clicked - open notifications panel');
+      // You can implement a notifications panel or modal here
+    }
+    
+    if (itemName === 'calendar') {
+      console.log('Calendar clicked - navigate to calendar page');
+      // if (onNavigate) onNavigate('calendar');
+    }
+    
+    if (itemName === 'help') {
+      console.log('Help clicked - open help center');
+      // You can open a help modal or navigate to help page
+    }
+    
+    if (itemName === 'invite') {
+      console.log('Invite clicked - open invite modal');
+      // You can implement an invite friends modal here
+      // For example, copy referral link to clipboard
+      navigator.clipboard.writeText('https://padh.ai/join?ref=user123');
+      alert('Invite link copied to clipboard!');
+    }
+    
+    if (itemName === 'logout') {
+      console.log('Logout clicked');
+      // Handle logout logic here
+      // Clear user data, redirect to login, etc.
+      if (window.confirm('Are you sure you want to logout?')) {
+        // Clear localStorage
+        localStorage.clear();
+        // Redirect to login page or home
+        window.location.href = '/';
+      }
+    }
   };
 
   const toggleSection = (section) => {
@@ -100,7 +204,7 @@ function Header() {
           {/* Upload Card - Just Image as Button */}
           <div 
             className="upload-card-btn"
-            onClick={() => handleItemClick('upload')}
+            onClick={() => handleItemClick('upload-doc')}
           >
             <img src={uploadImage} alt="Upload Document" className="upload-card-img" />
           </div>
