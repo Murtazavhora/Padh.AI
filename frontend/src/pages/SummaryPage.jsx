@@ -3,17 +3,18 @@ import './SummaryPage.css';
 import Header from '../Components/Header/Header';
 import Footer from '../Components/Footer/Footer';
 
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
 function SummaryPage({ onBack }) {
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [uploadedDocuments, setUploadedDocuments] = useState([]);
   const [summaryText, setSummaryText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState('');
 
-  // Load documents from localStorage when component mounts
   useEffect(() => {
     loadDocuments();
     
-    // Listen for document updates
     const handleDocumentsUpdated = (e) => {
       setUploadedDocuments(e.detail);
     };
@@ -36,25 +37,150 @@ function SummaryPage({ onBack }) {
   const handleDocumentSelect = (doc) => {
     setSelectedDoc(doc);
     setSummaryText('');
+    setError('');
+  };
+
+  const handleDeleteDocument = (e, docId) => {
+    e.stopPropagation();
+    const updatedDocs = uploadedDocuments.filter(doc => doc.id !== docId);
+    setUploadedDocuments(updatedDocs);
+    localStorage.setItem('recentDocuments', JSON.stringify(updatedDocs));
+    window.dispatchEvent(new CustomEvent('documentsUpdated', { detail: updatedDocs }));
+
+    if (selectedDoc?.id === docId) {
+      setSelectedDoc(null);
+      setSummaryText('');
+      setError('');
+    }
   };
 
   const handleGenerateSummary = async () => {
     if (!selectedDoc) return;
-    
+
+    const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+    if (!apiKey) {
+      setError('API key not configured. Add VITE_GROQ_API_KEY to your .env.local file.');
+      return;
+    }
+
+    if (!selectedDoc.content || selectedDoc.content.trim().length === 0) {
+      setError('No readable content found in this document. Please re-upload the file.');
+      return;
+    }
+
     setIsGenerating(true);
-    
-    // Simulate API call - replace with actual API
-    setTimeout(() => {
-      setSummaryText(`This is a sample summary for "${selectedDoc.name}". In production, this would be replaced with actual AI-generated content from your backend API. The summary would include key points, main ideas, and important details extracted from the document.
+    setError('');
+    setSummaryText('');
 
-Key Findings:
-• Main point 1 from the document
-• Important conclusion derived from the analysis
-• Recommended actions based on the content
+    const docContent = selectedDoc.content.length > 12000
+      ? selectedDoc.content.substring(0, 12000) + '\n\n[Content truncated for processing...]'
+      : selectedDoc.content;
 
-The analysis reveals that this document contains valuable insights that can be applied immediately.`);
+    try {
+      const response = await fetch(GROQ_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [
+            {
+              role: 'system',
+              content: `You are an expert document summarizer for a student learning platform called Padh.AI. Generate a well-structured, comprehensive summary of the provided document. Format your response using this exact structure:
+
+## Summary
+A 2-4 sentence summary of what the document is about.
+
+## Key Points
+- Point 1
+- Point 2
+- Point 3
+(list all important points)
+
+Keep the language clear, concise, and student-friendly. Do NOT include any other sections.`
+            },
+            {
+              role: 'user',
+              content: `Please summarize the following document titled "${selectedDoc.name}":\n\n${docContent}`
+            }
+          ],
+          temperature: 0.3,
+          max_tokens: 2048,
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error?.message || `API request failed (${response.status})`);
+      }
+
+      const data = await response.json();
+      const summary = data.choices?.[0]?.message?.content;
+
+      if (!summary) {
+        throw new Error('No summary was returned by the AI model.');
+      }
+
+      setSummaryText(summary);
+    } catch (err) {
+      setError(err.message || 'Failed to generate summary. Please try again.');
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
+  };
+
+  const renderFormattedSummary = (text) => {
+    const lines = text.split('\n');
+    const elements = [];
+    let listItems = [];
+
+    const flushList = () => {
+      if (listItems.length > 0) {
+        elements.push(
+          <ul key={`list-${elements.length}`} className="summary-list">
+            {listItems.map((item, i) => (
+              <li key={i} className="summary-list-item">{item}</li>
+            ))}
+          </ul>
+        );
+        listItems = [];
+      }
+    };
+
+    lines.forEach((line, index) => {
+      const trimmed = line.trim();
+
+      if (trimmed.startsWith('## ')) {
+        flushList();
+        elements.push(
+          <h3 key={`h-${index}`} className="summary-heading">{trimmed.replace('## ', '')}</h3>
+        );
+      } else if (trimmed.startsWith('# ')) {
+        flushList();
+        elements.push(
+          <h2 key={`h1-${index}`} className="summary-heading-main">{trimmed.replace('# ', '')}</h2>
+        );
+      } else if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+        listItems.push(trimmed.substring(2));
+      } else if (/^\d+\.\s/.test(trimmed)) {
+        listItems.push(trimmed.replace(/^\d+\.\s/, ''));
+      } else if (trimmed === '') {
+        flushList();
+      } else {
+        flushList();
+        const formatted = trimmed
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.+?)\*/g, '<em>$1</em>');
+        elements.push(
+          <p key={`p-${index}`} className="summary-paragraph" dangerouslySetInnerHTML={{ __html: formatted }} />
+        );
+      }
+    });
+
+    flushList();
+    return elements;
   };
 
   const handleDownload = () => {
@@ -168,9 +294,13 @@ The analysis reveals that this document contains valuable insights that can be a
                         <span className="doc-name">{doc.name}</span>
                         <span className="doc-meta">{doc.date} • {doc.size || '0 KB'}</span>
                       </div>
-                      {selectedDoc?.id === doc.id && (
-                        <div className="selected-check">✓</div>
-                      )}
+                      <button
+                        className="doc-delete-btn"
+                        onClick={(e) => handleDeleteDocument(e, doc.id)}
+                        title="Remove document"
+                      >
+                        ✕
+                      </button>
                     </div>
                   ))
                 ) : (
@@ -214,8 +344,16 @@ The analysis reveals that this document contains valuable insights that can be a
                   )}
                 </div>
                 <div className="output-content">
+                  {error && (
+                    <div className="summary-error">
+                      <span className="error-icon">⚠️</span>
+                      <span>{error}</span>
+                    </div>
+                  )}
                   {summaryText ? (
-                    <p className="summary-text">{summaryText}</p>
+                    <div className="summary-formatted">
+                      {renderFormattedSummary(summaryText)}
+                    </div>
                   ) : (
                     <div className="empty-summary">
                       <div className="empty-icon">📝</div>

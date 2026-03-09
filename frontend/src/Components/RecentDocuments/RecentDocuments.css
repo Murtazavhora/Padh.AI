@@ -180,13 +180,44 @@
   font-style: italic;
 }
 
+/* Row actions container */
+.doc-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+/* Delete button */
+.doc-remove-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #555555;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.doc-remove-btn:hover {
+  background: rgba(255, 80, 80, 0.15);
+  color: #ff6b6b;
+}
+
 /* Arrow - Using FiChevronRight icon */
 .doc-arrow {
   color: rgba(255, 255, 255, 0.7);
   font-size: 16px;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  margin-left: 12px;
   font-family: 'Anybody', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 

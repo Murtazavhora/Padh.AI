@@ -9,6 +9,8 @@ import {
   FiMessageSquare, FiTrash2, FiX
 } from 'react-icons/fi';
 
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
 function AssistantPage({ onBack }) {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -90,44 +92,80 @@ function AssistantPage({ onBack }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!inputMessage.trim()) return;
 
     const userMessage = {
-      id: messages.length + 1,
+      id: Date.now(),
       text: inputMessage,
       sender: 'user',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
-    
-    setMessages(prev => [...prev, userMessage]);
+
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInputMessage('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const assistantResponse = {
-        id: messages.length + 2,
-        text: getAssistantResponse(inputMessage),
+    try {
+      const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+      if (!apiKey) throw new Error('API key not configured.');
+
+      const chatHistory = updatedMessages
+        .filter(m => m.sender === 'user' || m.sender === 'assistant')
+        .slice(-10)
+        .map(m => ({
+          role: m.sender === 'user' ? 'user' : 'assistant',
+          content: m.fileContext
+            ? `${m.text}\n\n[File content for reference]:\n${m.fileContext}`
+            : m.text
+        }));
+
+      const response = await fetch(GROQ_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are Padh.AI, a smart and friendly learning assistant for students. Give short, direct, and to-the-point answers. Use 2-3 sentences max unless the user asks for a detailed explanation. Be clear, accurate, and student-friendly. Avoid unnecessary filler or pleasantries.'
+            },
+            ...chatHistory
+          ],
+          temperature: 0.5,
+          max_tokens: 512,
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error?.message || `Request failed (${response.status})`);
+      }
+
+      const data = await response.json();
+      const reply = data.choices?.[0]?.message?.content?.trim();
+
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        text: reply || 'Sorry, I could not generate a response.',
         sender: 'assistant',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages(prev => [...prev, assistantResponse]);
+      }]);
+    } catch (err) {
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        text: `Error: ${err.message}`,
+        sender: 'assistant',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
-  };
-
-  const getAssistantResponse = (userInput) => {
-    const responses = [
-      "That's a great question! Let me help you understand this concept.",
-      "I can definitely assist you with that. Here's what you need to know...",
-      "Based on your query, I'd recommend focusing on these key points.",
-      "Let me break this down for you in simpler terms.",
-      "I understand your question. Here's a step-by-step explanation.",
-      "That's an interesting topic! Here's some information that might help."
-    ];
-    return responses[Math.floor(Math.random() * responses.length)] + 
-           " Would you like me to explain more?";
+    }
   };
 
   const handleFileUpload = () => {
@@ -138,7 +176,7 @@ function AssistantPage({ onBack }) {
     const file = e.target.files?.[0];
     if (file) {
       const fileMessage = {
-        id: messages.length + 1,
+        id: Date.now(),
         text: `Uploaded file: ${file.name}`,
         sender: 'user',
         type: 'file',
@@ -147,16 +185,20 @@ function AssistantPage({ onBack }) {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, fileMessage]);
-      
-      setTimeout(() => {
-        const assistantResponse = {
-          id: messages.length + 2,
-          text: `I've received your file "${file.name}". What would you like me to help you with?`,
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const content = ev.target.result;
+        const preview = content.length > 4000 ? content.substring(0, 4000) : content;
+        setMessages(prev => [...prev, {
+          id: Date.now() + 1,
+          text: `I've received your file "${file.name}". You can now ask me questions about its content.`,
           sender: 'assistant',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        };
-        setMessages(prev => [...prev, assistantResponse]);
-      }, 1000);
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          fileContext: preview
+        }]);
+      };
+      reader.readAsText(file);
     }
   };
 
