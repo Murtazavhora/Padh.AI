@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FiFile, FiChevronRight } from 'react-icons/fi';
+import { FiFile, FiChevronRight, FiX } from 'react-icons/fi';
 import './RecentDocuments.css';
 
 const RecentDocuments = () => {
@@ -22,14 +22,14 @@ const RecentDocuments = () => {
     }
   }, []);
 
-  // Function to add a new document
-  const addDocument = (fileName, fileType, fileSize = '0 KB') => {
+  const addDocument = (fileName, fileType, fileSize = '0 KB', content = '') => {
     const newDoc = {
       id: Date.now(),
       name: fileName,
       type: fileType,
       date: new Date().toISOString().split('T')[0],
-      size: fileSize
+      size: fileSize,
+      content: content
     };
     
     // Add new document at the beginning
@@ -65,6 +65,21 @@ const RecentDocuments = () => {
   const handleDocumentClick = (doc) => {
     console.log('Opening document:', doc.name);
     alert(`Opening: ${doc.name}\n\nThis would open/download the document in a real implementation.`);
+  };
+
+  const handleDeleteDocument = (e, docId) => {
+    e.stopPropagation();
+    const updatedDocs = allDocuments.filter(doc => doc.id !== docId);
+    setAllDocuments(updatedDocs);
+    localStorage.setItem('recentDocuments', JSON.stringify(updatedDocs));
+
+    if (showAll) {
+      setDocuments(updatedDocs);
+    } else {
+      setDocuments(updatedDocs.slice(0, 3));
+    }
+
+    window.dispatchEvent(new CustomEvent('documentsUpdated', { detail: updatedDocs }));
   };
 
   // Toggle between showing 3 documents and all documents
@@ -169,7 +184,18 @@ const RecentDocuments = () => {
                       </div>
                     </div>
                   </div>
-                  {!doc.empty && <FiChevronRight className="doc-arrow" />}
+                  {!doc.empty && (
+                    <div className="doc-row-actions">
+                      <button
+                        className="doc-remove-btn"
+                        onClick={(e) => handleDeleteDocument(e, doc.id)}
+                        title="Remove document"
+                      >
+                        <FiX />
+                      </button>
+                      <FiChevronRight className="doc-arrow" />
+                    </div>
+                  )}
                 </div>
               ))
             ) : (

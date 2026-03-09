@@ -8,6 +8,22 @@ import {
   FiCpu, FiUsers
 } from 'react-icons/fi';
 
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+const QUIZ_SYSTEM_PROMPT = `You are a quiz generator for a student learning platform called Padh.AI. Generate exactly 5 multiple-choice questions based on the given topic or document content.
+
+CRITICAL: You MUST respond with ONLY a valid JSON array, no markdown, no explanation, no code fences. The response must start with [ and end with ].
+
+Each question object must have exactly this structure:
+{"id":1,"question":"...","options":["A","B","C","D"],"correct":0}
+
+Rules:
+- "correct" is the 0-based index of the correct option (0, 1, 2, or 3)
+- Each question must have exactly 4 options
+- Questions should be educational, clear, and progressively challenging
+- Cover different aspects of the topic
+- Keep questions concise and student-friendly`;
+
 function QuizPage({ onBack }) {
   const [topic, setTopic] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -23,8 +39,8 @@ function QuizPage({ onBack }) {
   const [showGame, setShowGame] = useState(false);
   const [gameMode, setGameMode] = useState('vsAI');
   const [gameDifficulty, setGameDifficulty] = useState('easy');
+  const [quizError, setQuizError] = useState('');
   
-  // Tic Tac Toe game state
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState(true);
   const [winner, setWinner] = useState(null);
@@ -34,39 +50,63 @@ function QuizPage({ onBack }) {
   const [playerOWins, setPlayerOWins] = useState(0);
   const [draws, setDraws] = useState(0);
 
-  // Dummy quiz questions - simple but professional
   const dummyQuizQuestions = [
-    {
-      id: 1,
-      question: "What is the capital of France?",
-      options: ['London', 'Paris', 'Berlin', 'Madrid'],
-      correct: 1
-    },
-    {
-      id: 2,
-      question: "How many continents are there on Earth?",
-      options: ['5', '6', '7', '8'],
-      correct: 2
-    },
-    {
-      id: 3,
-      question: "Which planet is known as the Red Planet?",
-      options: ['Venus', 'Mars', 'Jupiter', 'Saturn'],
-      correct: 1
-    },
-    {
-      id: 4,
-      question: "What is the largest ocean on Earth?",
-      options: ['Atlantic', 'Indian', 'Arctic', 'Pacific'],
-      correct: 3
-    },
-    {
-      id: 5,
-      question: "How many hours are in a day?",
-      options: ['12', '24', '36', '48'],
-      correct: 1
-    }
+    { id: 1, question: "What is the capital of France?", options: ['London', 'Paris', 'Berlin', 'Madrid'], correct: 1 },
+    { id: 2, question: "How many continents are there on Earth?", options: ['5', '6', '7', '8'], correct: 2 },
+    { id: 3, question: "Which planet is known as the Red Planet?", options: ['Venus', 'Mars', 'Jupiter', 'Saturn'], correct: 1 },
+    { id: 4, question: "What is the largest ocean on Earth?", options: ['Atlantic', 'Indian', 'Arctic', 'Pacific'], correct: 3 },
+    { id: 5, question: "How many hours are in a day?", options: ['12', '24', '36', '48'], correct: 1 }
   ];
+
+  const generateQuizFromAPI = async (userPrompt) => {
+    const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+    if (!apiKey) {
+      throw new Error('API key not configured. Add VITE_GROQ_API_KEY to your .env.local file.');
+    }
+
+    const response = await fetch(GROQ_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: QUIZ_SYSTEM_PROMPT },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.7,
+        max_tokens: 2048,
+      }),
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `API request failed (${response.status})`);
+    }
+
+    const data = await response.json();
+    let content = data.choices?.[0]?.message?.content?.trim();
+
+    if (!content) throw new Error('No response received from AI.');
+
+    const fenceMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (fenceMatch) content = fenceMatch[1].trim();
+
+    const parsed = JSON.parse(content);
+
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      throw new Error('Invalid quiz format received.');
+    }
+
+    return parsed.slice(0, 5).map((q, i) => ({
+      id: q.id || i + 1,
+      question: q.question,
+      options: q.options,
+      correct: typeof q.correct === 'number' ? q.correct : 0,
+    }));
+  };
 
   useEffect(() => {
     loadDocuments();
@@ -108,7 +148,7 @@ function QuizPage({ onBack }) {
     }, 1000);
   };
 
-  const handleTopicSubmit = (e) => {
+  const handleTopicSubmit = async (e) => {
     e.preventDefault();
     if (!topic.trim()) return;
     
@@ -117,32 +157,58 @@ function QuizPage({ onBack }) {
     setSelectedDocument(null);
     setShowDocumentSelector(false);
     setShowGame(false);
+    setQuizError('');
+    setQuestions([]);
     
-    setTimeout(() => {
-      setQuestions(dummyQuizQuestions);
-      setIsGenerating(false);
+    try {
+      const quizQuestions = await generateQuizFromAPI(
+        `Generate 5 multiple-choice quiz questions about the topic: "${topic.trim()}". Make them educational and progressively challenging.`
+      );
+      setQuestions(quizQuestions);
       setCurrentQuestionIndex(0);
       setSelectedAnswers({});
       setShowResults(false);
       setScore(0);
-    }, 1500);
+    } catch (err) {
+      setQuizError(err.message || 'Failed to generate quiz. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
-  const handleDocumentSelect = (doc) => {
+  const handleDocumentSelect = async (doc) => {
     setSelectedDocument(doc);
     setShowDocumentSelector(false);
     setInputMode('document');
     setIsGenerating(true);
     setShowGame(false);
-    
-    setTimeout(() => {
-      setQuestions(dummyQuizQuestions);
+    setQuizError('');
+    setQuestions([]);
+
+    if (!doc.content || doc.content.trim().length === 0) {
+      setQuizError('No readable content in this document. Please re-upload the file.');
       setIsGenerating(false);
+      return;
+    }
+
+    const docContent = doc.content.length > 8000
+      ? doc.content.substring(0, 8000)
+      : doc.content;
+
+    try {
+      const quizQuestions = await generateQuizFromAPI(
+        `Generate 5 multiple-choice quiz questions based on the following document titled "${doc.name}":\n\n${docContent}`
+      );
+      setQuestions(quizQuestions);
       setCurrentQuestionIndex(0);
       setSelectedAnswers({});
       setShowResults(false);
       setScore(0);
-    }, 1500);
+    } catch (err) {
+      setQuizError(err.message || 'Failed to generate quiz. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleUploadClick = () => {
@@ -463,6 +529,14 @@ function QuizPage({ onBack }) {
                   <p>No documents uploaded.</p>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Error Display */}
+          {quizError && (
+            <div className="quiz-error">
+              <span className="quiz-error-icon">⚠️</span>
+              <span>{quizError}</span>
             </div>
           )}
 

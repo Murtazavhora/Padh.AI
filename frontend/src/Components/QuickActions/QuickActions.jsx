@@ -57,9 +57,14 @@ function QuickActions({ onNavigate }) {
           const i = Math.floor(Math.log(fileSize) / Math.log(1024));
           const formattedSize = Math.round(fileSize / Math.pow(1024, i)) + ' ' + sizes[i];
           
-          if (window.addRecentDocument) {
-            window.addRecentDocument(fileName, fileType, formattedSize);
-          }
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const content = e.target.result;
+            if (window.addRecentDocument) {
+              window.addRecentDocument(fileName, fileType, formattedSize, content);
+            }
+          };
+          reader.readAsText(file);
           
           console.log(`📄 Uploaded: ${fileName} (${formattedSize})`);
         }
