@@ -9,7 +9,7 @@ import {
   FiMessageSquare, FiTrash2, FiX
 } from 'react-icons/fi';
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 function AssistantPage({ onBack }) {
   const [messages, setMessages] = useState([]);
@@ -109,9 +109,6 @@ function AssistantPage({ onBack }) {
     setIsTyping(true);
 
     try {
-      const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-      if (!apiKey) throw new Error('API key not configured.');
-
       const chatHistory = updatedMessages
         .filter(m => m.sender === 'user' || m.sender === 'assistant')
         .slice(-10)
@@ -122,33 +119,18 @@ function AssistantPage({ onBack }) {
             : m.text
         }));
 
-      const response = await fetch(GROQ_API_URL, {
+      const response = await fetch(`${API_BASE}/api/chat`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are Padh.AI, a smart and friendly learning assistant for students. Give short, direct, and to-the-point answers. Use 2-3 sentences max unless the user asks for a detailed explanation. Be clear, accurate, and student-friendly. Avoid unnecessary filler or pleasantries.'
-            },
-            ...chatHistory
-          ],
-          temperature: 0.5,
-          max_tokens: 512,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: chatHistory }),
       });
 
+      const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error?.message || `Request failed (${response.status})`);
+        throw new Error(data.detail || `Request failed (${response.status})`);
       }
 
-      const data = await response.json();
-      const reply = data.choices?.[0]?.message?.content?.trim();
+      const reply = data.message?.trim();
 
       setMessages(prev => [...prev, {
         id: Date.now() + 1,

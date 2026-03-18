@@ -3,7 +3,7 @@ import './SummaryPage.css';
 import Header from '../Components/Header/Header';
 import Footer from '../Components/Footer/Footer';
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 function SummaryPage({ onBack }) {
   const [selectedDoc, setSelectedDoc] = useState(null);
@@ -57,12 +57,6 @@ function SummaryPage({ onBack }) {
   const handleGenerateSummary = async () => {
     if (!selectedDoc) return;
 
-    const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-    if (!apiKey) {
-      setError('API key not configured. Add VITE_GROQ_API_KEY to your .env.local file.');
-      return;
-    }
-
     if (!selectedDoc.content || selectedDoc.content.trim().length === 0) {
       setError('No readable content found in this document. Please re-upload the file.');
       return;
@@ -72,58 +66,22 @@ function SummaryPage({ onBack }) {
     setError('');
     setSummaryText('');
 
-    const docContent = selectedDoc.content.length > 12000
-      ? selectedDoc.content.substring(0, 12000) + '\n\n[Content truncated for processing...]'
-      : selectedDoc.content;
-
     try {
-      const response = await fetch(GROQ_API_URL, {
+      const response = await fetch(`${API_BASE}/api/summary`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: [
-            {
-              role: 'system',
-              content: `You are an expert document summarizer for a student learning platform called Padh.AI. Generate a well-structured, comprehensive summary of the provided document. Format your response using this exact structure:
-
-## Summary
-A 2-4 sentence summary of what the document is about.
-
-## Key Points
-- Point 1
-- Point 2
-- Point 3
-(list all important points)
-
-Keep the language clear, concise, and student-friendly. Do NOT include any other sections.`
-            },
-            {
-              role: 'user',
-              content: `Please summarize the following document titled "${selectedDoc.name}":\n\n${docContent}`
-            }
-          ],
-          temperature: 0.3,
-          max_tokens: 2048,
+          document_name: selectedDoc.name,
+          content: selectedDoc.content,
         }),
       });
 
+      const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error?.message || `API request failed (${response.status})`);
+        throw new Error(data.detail || `Request failed (${response.status})`);
       }
 
-      const data = await response.json();
-      const summary = data.choices?.[0]?.message?.content;
-
-      if (!summary) {
-        throw new Error('No summary was returned by the AI model.');
-      }
-
-      setSummaryText(summary);
+      setSummaryText(data.summary || '');
     } catch (err) {
       setError(err.message || 'Failed to generate summary. Please try again.');
     } finally {

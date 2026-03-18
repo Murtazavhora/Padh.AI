@@ -8,21 +8,7 @@ import {
   FiCpu, FiUsers
 } from 'react-icons/fi';
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-
-const QUIZ_SYSTEM_PROMPT = `You are a quiz generator for a student learning platform called Padh.AI. Generate exactly 5 multiple-choice questions based on the given topic or document content.
-
-CRITICAL: You MUST respond with ONLY a valid JSON array, no markdown, no explanation, no code fences. The response must start with [ and end with ].
-
-Each question object must have exactly this structure:
-{"id":1,"question":"...","options":["A","B","C","D"],"correct":0}
-
-Rules:
-- "correct" is the 0-based index of the correct option (0, 1, 2, or 3)
-- Each question must have exactly 4 options
-- Questions should be educational, clear, and progressively challenging
-- Cover different aspects of the topic
-- Keep questions concise and student-friendly`;
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 function QuizPage({ onBack }) {
   const [topic, setTopic] = useState('');
@@ -58,54 +44,17 @@ function QuizPage({ onBack }) {
     { id: 5, question: "How many hours are in a day?", options: ['12', '24', '36', '48'], correct: 1 }
   ];
 
-  const generateQuizFromAPI = async (userPrompt) => {
-    const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-    if (!apiKey) {
-      throw new Error('API key not configured. Add VITE_GROQ_API_KEY to your .env.local file.');
-    }
-
-    const response = await fetch(GROQ_API_URL, {
+  const generateQuizFromBackend = async (body) => {
+    const response = await fetch(`${API_BASE}/api/quiz`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          { role: 'system', content: QUIZ_SYSTEM_PROMPT },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 2048,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     });
-
+    const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `API request failed (${response.status})`);
+      throw new Error(data.detail || `Request failed (${response.status})`);
     }
-
-    const data = await response.json();
-    let content = data.choices?.[0]?.message?.content?.trim();
-
-    if (!content) throw new Error('No response received from AI.');
-
-    const fenceMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (fenceMatch) content = fenceMatch[1].trim();
-
-    const parsed = JSON.parse(content);
-
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      throw new Error('Invalid quiz format received.');
-    }
-
-    return parsed.slice(0, 5).map((q, i) => ({
-      id: q.id || i + 1,
-      question: q.question,
-      options: q.options,
-      correct: typeof q.correct === 'number' ? q.correct : 0,
-    }));
+    return data.questions || [];
   };
 
   useEffect(() => {
@@ -161,9 +110,7 @@ function QuizPage({ onBack }) {
     setQuestions([]);
     
     try {
-      const quizQuestions = await generateQuizFromAPI(
-        `Generate 5 multiple-choice quiz questions about the topic: "${topic.trim()}". Make them educational and progressively challenging.`
-      );
+      const quizQuestions = await generateQuizFromBackend({ topic: topic.trim() });
       setQuestions(quizQuestions);
       setCurrentQuestionIndex(0);
       setSelectedAnswers({});
@@ -196,9 +143,10 @@ function QuizPage({ onBack }) {
       : doc.content;
 
     try {
-      const quizQuestions = await generateQuizFromAPI(
-        `Generate 5 multiple-choice quiz questions based on the following document titled "${doc.name}":\n\n${docContent}`
-      );
+      const quizQuestions = await generateQuizFromBackend({
+        document_name: doc.name,
+        content: docContent,
+      });
       setQuestions(quizQuestions);
       setCurrentQuestionIndex(0);
       setSelectedAnswers({});
@@ -457,7 +405,7 @@ function QuizPage({ onBack }) {
           {/* Quiz Intro */}
           <div className="quiz-intro">
             <p className="quiz-intro-text">
-              Test your knowledge with interactive quizzes. Score 80% or higher to unlock Tic Tac Toe.
+              Test your knowledge with interactive quizzes. Enter a topic for conceptual questions, or pick an uploaded document — quiz from docs uses RAG so questions match your material. Score 80% or higher to unlock Tic Tac Toe.
             </p>
           </div>
 

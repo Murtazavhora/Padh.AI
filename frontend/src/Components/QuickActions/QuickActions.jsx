@@ -39,41 +39,92 @@ function QuickActions({ onNavigate }) {
     }
   }, [onNavigate]);
 
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff']);
+
   const handleUpload = useCallback(() => {
     if (!fileInputRef.current) {
       const input = document.createElement('input');
       input.type = 'file';
-      input.accept = '.pdf,.doc,.docx,.txt,.jpg,.jpeg,.png';
+      input.accept = '.pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.webp,.bmp,.tiff';
       input.multiple = false;
-      
-      input.onchange = (event) => {
+
+      input.onchange = async (event) => {
         const file = event.target.files?.[0];
         if (file) {
           const fileName = file.name;
           const fileType = fileName.split('.').pop().toLowerCase();
           const fileSize = file.size;
-          
+
           const sizes = ['Bytes', 'KB', 'MB', 'GB'];
           const i = Math.floor(Math.log(fileSize) / Math.log(1024));
           const formattedSize = Math.round(fileSize / Math.pow(1024, i)) + ' ' + sizes[i];
-          
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const content = e.target.result;
-            if (window.addRecentDocument) {
-              window.addRecentDocument(fileName, fileType, formattedSize, content);
+
+          let content = '';
+          if (IMAGE_EXTENSIONS.has(fileType)) {
+            try {
+              const formData = new FormData();
+              formData.append('file', file);
+              const res = await fetch(`${API_BASE}/api/ocr`, {
+                method: 'POST',
+                body: formData,
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) throw new Error(data.detail || 'OCR failed');
+              content = data.text || '';
+            } catch (err) {
+              console.error('OCR error:', err);
+              alert(`Image OCR failed: ${err.message}\n\nIf the error mentions Tesseract, install it from https://github.com/UB-Mannheim/tesseract/wiki and add it to your system PATH (or set TESSERACT_CMD in backend .env).`);
+              input.remove();
+              return;
             }
-          };
-          reader.readAsText(file);
-          
-          console.log(`📄 Uploaded: ${fileName} (${formattedSize})`);
+          } else {
+            content = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = (e) => resolve(e.target?.result ?? '');
+              reader.onerror = () => reject(new Error('Failed to read file'));
+              reader.readAsText(file);
+            });
+          }
+
+          // Plagiarism check before adding document (threshold 30%)
+          try {
+            const checkRes = await fetch(`${API_BASE}/api/plagiarism-check`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ content: content || '' }),
+            });
+            const checkData = await checkRes.json().catch(() => ({}));
+            if (!checkRes.ok) {
+              alert(`Plagiarism check failed: ${checkData.detail || checkRes.status}. Please try again.`);
+              input.remove();
+              return;
+            }
+            if (!checkData.within_threshold) {
+              const pct = checkData.plagiarism_percentage ?? '?';
+              alert(`High plagiarism (${pct}%). Document not uploaded.`);
+              input.remove();
+              return;
+            }
+          } catch (err) {
+            console.error('Plagiarism check error:', err);
+            alert('Plagiarism check failed. Please try again.');
+            input.remove();
+            return;
+          }
+
+          if (window.addRecentDocument) {
+            window.addRecentDocument(fileName, fileType, formattedSize, content);
+          }
+          alert('Low plagiarism. Document successfully uploaded.');
+          console.log(`📄 Uploaded: ${fileName} (${formattedSize})${IMAGE_EXTENSIONS.has(fileType) ? ' [OCR]' : ''}`);
         }
         input.remove();
       };
-      
+
       fileInputRef.current = input;
     }
-    
+
     fileInputRef.current.click();
   }, []);
 
