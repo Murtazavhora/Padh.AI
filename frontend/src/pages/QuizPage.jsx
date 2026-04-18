@@ -8,21 +8,7 @@ import {
   FiCpu, FiUsers
 } from 'react-icons/fi';
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-
-const QUIZ_SYSTEM_PROMPT = `You are a quiz generator for a student learning platform called Padh.AI. Generate exactly 5 multiple-choice questions based on the given topic or document content.
-
-CRITICAL: You MUST respond with ONLY a valid JSON array, no markdown, no explanation, no code fences. The response must start with [ and end with ].
-
-Each question object must have exactly this structure:
-{"id":1,"question":"...","options":["A","B","C","D"],"correct":0}
-
-Rules:
-- "correct" is the 0-based index of the correct option (0, 1, 2, or 3)
-- Each question must have exactly 4 options
-- Questions should be educational, clear, and progressively challenging
-- Cover different aspects of the topic
-- Keep questions concise and student-friendly`;
+const BACKEND_URL = 'http://localhost:5000/api/quiz';
 
 function QuizPage({ onBack }) {
   const [topic, setTopic] = useState('');
@@ -40,7 +26,12 @@ function QuizPage({ onBack }) {
   const [gameMode, setGameMode] = useState('vsAI');
   const [gameDifficulty, setGameDifficulty] = useState('easy');
   const [quizError, setQuizError] = useState('');
-  
+
+  // New backend state
+  const [quizId, setQuizId] = useState(null);
+  const [difficultyLevel, setDifficultyLevel] = useState(1);
+  const [quizStats, setQuizStats] = useState(null);
+
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isXNext, setIsXNext] = useState(true);
   const [winner, setWinner] = useState(null);
@@ -57,56 +48,6 @@ function QuizPage({ onBack }) {
     { id: 4, question: "What is the largest ocean on Earth?", options: ['Atlantic', 'Indian', 'Arctic', 'Pacific'], correct: 3 },
     { id: 5, question: "How many hours are in a day?", options: ['12', '24', '36', '48'], correct: 1 }
   ];
-
-  const generateQuizFromAPI = async (userPrompt) => {
-    const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-    if (!apiKey) {
-      throw new Error('API key not configured. Add VITE_GROQ_API_KEY to your .env.local file.');
-    }
-
-    const response = await fetch(GROQ_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          { role: 'system', content: QUIZ_SYSTEM_PROMPT },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 2048,
-      }),
-    });
-
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `API request failed (${response.status})`);
-    }
-
-    const data = await response.json();
-    let content = data.choices?.[0]?.message?.content?.trim();
-
-    if (!content) throw new Error('No response received from AI.');
-
-    const fenceMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (fenceMatch) content = fenceMatch[1].trim();
-
-    const parsed = JSON.parse(content);
-
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      throw new Error('Invalid quiz format received.');
-    }
-
-    return parsed.slice(0, 5).map((q, i) => ({
-      id: q.id || i + 1,
-      question: q.question,
-      options: q.options,
-      correct: typeof q.correct === 'number' ? q.correct : 0,
-    }));
-  };
 
   useEffect(() => {
     loadDocuments();
@@ -130,13 +71,15 @@ function QuizPage({ onBack }) {
     }
   };
 
-  // Handle trial quiz
   const handleTrialQuiz = () => {
     setIsGenerating(true);
     setInputMode('trial');
     setSelectedDocument(null);
     setShowDocumentSelector(false);
     setShowGame(false);
+    setQuizId(null);
+    setDifficultyLevel(1);
+    setQuizStats(null);
     
     setTimeout(() => {
       setQuestions(dummyQuizQuestions);
@@ -159,18 +102,27 @@ function QuizPage({ onBack }) {
     setShowGame(false);
     setQuizError('');
     setQuestions([]);
+    setQuizStats(null);
     
     try {
-      const quizQuestions = await generateQuizFromAPI(
-        `Generate 5 multiple-choice quiz questions about the topic: "${topic.trim()}". Make them educational and progressively challenging.`
-      );
-      setQuestions(quizQuestions);
+      const response = await fetch(`${BACKEND_URL}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: topic.trim() }),
+      });
+
+      if (!response.ok) throw new Error('Backend error');
+
+      const data = await response.json();
+      setQuestions(data.questions);
+      setQuizId(data.quiz_id);
+      setDifficultyLevel(data.difficulty_level || 1);
       setCurrentQuestionIndex(0);
       setSelectedAnswers({});
       setShowResults(false);
       setScore(0);
     } catch (err) {
-      setQuizError(err.message || 'Failed to generate quiz. Please try again.');
+      setQuizError('Failed to generate quiz. Make sure backend is running on port 5000.');
     } finally {
       setIsGenerating(false);
     }
@@ -184,6 +136,7 @@ function QuizPage({ onBack }) {
     setShowGame(false);
     setQuizError('');
     setQuestions([]);
+    setQuizStats(null);
 
     if (!doc.content || doc.content.trim().length === 0) {
       setQuizError('No readable content in this document. Please re-upload the file.');
@@ -191,21 +144,25 @@ function QuizPage({ onBack }) {
       return;
     }
 
-    const docContent = doc.content.length > 8000
-      ? doc.content.substring(0, 8000)
-      : doc.content;
-
     try {
-      const quizQuestions = await generateQuizFromAPI(
-        `Generate 5 multiple-choice quiz questions based on the following document titled "${doc.name}":\n\n${docContent}`
-      );
-      setQuestions(quizQuestions);
+      const response = await fetch(`${BACKEND_URL}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: doc.content.substring(0, 8000) }),
+      });
+
+      if (!response.ok) throw new Error('Backend error');
+
+      const data = await response.json();
+      setQuestions(data.questions);
+      setQuizId(data.quiz_id);
+      setDifficultyLevel(data.difficulty_level || 1);
       setCurrentQuestionIndex(0);
       setSelectedAnswers({});
       setShowResults(false);
       setScore(0);
     } catch (err) {
-      setQuizError(err.message || 'Failed to generate quiz. Please try again.');
+      setQuizError('Failed to generate quiz. Make sure backend is running on port 5000.');
     } finally {
       setIsGenerating(false);
     }
@@ -234,20 +191,93 @@ function QuizPage({ onBack }) {
     }
   };
 
-  const handleSubmitQuiz = () => {
-    let correctCount = 0;
-    questions.forEach(question => {
-      if (selectedAnswers[question.id] === question.correct) {
-        correctCount++;
+  const handleSubmitQuiz = async () => {
+    // Demo quiz: local scoring
+    if (inputMode === 'trial') {
+      let correctCount = 0;
+      questions.forEach(question => {
+        if (selectedAnswers[question.id] === question.correct) {
+          correctCount++;
+        }
+      });
+      setScore(correctCount);
+      setShowResults(true);
+      if (correctCount >= Math.ceil(questions.length * 0.8)) {
+        setShowGame(true);
+        resetGame();
       }
-    });
-    const finalScore = correctCount;
-    setScore(finalScore);
-    setShowResults(true);
-    
-    if (finalScore >= Math.ceil(questions.length * 0.8)) {
-      setShowGame(true);
-      resetGame();
+      return;
+    }
+
+    // Backend scoring
+    try {
+      const answersWithStringKeys = {};
+      Object.entries(selectedAnswers).forEach(([k, v]) => {
+        answersWithStringKeys[String(k)] = v;
+      });
+
+      const response = await fetch(`${BACKEND_URL}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quiz_id: quizId,
+          questions: questions,
+          answers: answersWithStringKeys,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Submit failed');
+
+      const data = await response.json();
+      setScore(data.score);
+      setQuizStats(data);
+      setShowResults(true);
+
+      if (data.unlock_game) {
+        setShowGame(true);
+        resetGame();
+      }
+    } catch (err) {
+      setQuizError('Failed to submit quiz results.');
+    }
+  };
+
+  const handleGenerateMore = async () => {
+    setIsGenerating(true);
+    setQuizError('');
+
+    const nextDifficulty = Math.min(difficultyLevel + 1, 3);
+
+    try {
+      let body = { difficulty_level: nextDifficulty };
+      if (inputMode === 'topic') {
+        body.topic = topic.trim();
+      } else if (inputMode === 'document' && selectedDocument) {
+        body.content = selectedDocument.content.substring(0, 8000);
+      }
+
+      const response = await fetch(`${BACKEND_URL}/generate-more`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) throw new Error('Generate more failed');
+
+      const data = await response.json();
+      setQuestions(data.questions);
+      setQuizId(data.quiz_id);
+      setDifficultyLevel(data.difficulty_level || nextDifficulty);
+      setCurrentQuestionIndex(0);
+      setSelectedAnswers({});
+      setShowResults(false);
+      setScore(0);
+      setShowGame(false);
+      setQuizStats(null);
+    } catch (err) {
+      setQuizError('Failed to generate more questions.');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -257,6 +287,7 @@ function QuizPage({ onBack }) {
     setShowResults(false);
     setScore(0);
     setShowGame(false);
+    setQuizStats(null);
   };
 
   const handleNewQuiz = () => {
@@ -270,6 +301,9 @@ function QuizPage({ onBack }) {
     setScore(0);
     setShowDocumentSelector(false);
     setShowGame(false);
+    setQuizId(null);
+    setDifficultyLevel(1);
+    setQuizStats(null);
   };
 
   // Tic Tac Toe game functions
@@ -461,7 +495,7 @@ function QuizPage({ onBack }) {
             </p>
           </div>
 
-          {/* Action Buttons Row - Always in a row */}
+          {/* Action Buttons Row */}
           <div className="quiz-action-row">
             <button 
               className="quiz-trial-btn"
@@ -635,6 +669,23 @@ function QuizPage({ onBack }) {
                   {Math.round((score / questions.length) * 100)}%
                 </div>
                 
+                {/* Backend stats: XP, Level, Badges */}
+                {quizStats && (
+                  <div className="quiz-backend-stats" style={{ margin: '10px 0', fontSize: '0.9rem' }}>
+                    {quizStats.xp_earned !== undefined && (
+                      <div style={{ marginBottom: '4px' }}>
+                        ⚡ <strong>{quizStats.xp_earned} XP earned</strong>
+                        {quizStats.level && <span style={{ marginLeft: '8px' }}>· Level: <strong>{quizStats.level}</strong></span>}
+                      </div>
+                    )}
+                    {quizStats.badges && quizStats.badges.length > 0 && (
+                      <div style={{ marginTop: '6px' }}>
+                        🏅 {quizStats.badges.join(' · ')}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="quiz-performance">
                   {score === questions.length ? (
                     <p className="quiz-performance-text perfect">Perfect Score! <FiStar /></p>
@@ -745,6 +796,15 @@ function QuizPage({ onBack }) {
                   <button className="quiz-results-btn new" onClick={handleNewQuiz}>
                     New Quiz
                   </button>
+                  {inputMode !== 'trial' && (
+                    <button 
+                      className="quiz-results-btn new" 
+                      onClick={handleGenerateMore}
+                      disabled={isGenerating}
+                    >
+                      {isGenerating ? 'Loading...' : `Generate More (Level ${Math.min(difficultyLevel + 1, 3)})`}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
