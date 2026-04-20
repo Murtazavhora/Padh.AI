@@ -1,6 +1,6 @@
 /* RecommendedPage.css */
 
-/* 1. ROOT SCOPING */
+/* 1. ROOT SCOPING & VARIABLES */
 #rec-page-root {
     --rec-yellow: #FFC83D;
     --rec-bg-dark: #000000;
@@ -8,7 +8,7 @@
     --rec-border: #1f1f22;
     --rec-text: #e4e4e7;
     --rec-text-dim: #a1a1aa;
-    
+
     background-color: var(--rec-bg-dark);
     color: var(--rec-text);
     min-height: 100vh;
@@ -19,10 +19,10 @@
 /* 2. LAYOUT STRUCTURE */
 #rec-page-root .rec-full-page {
     display: flex;
-    height: calc(100vh - 70px); 
-    margin-top: 70px; 
+    height: calc(100vh - 70px);
+    margin-top: 70px;
     overflow: hidden;
-    align-items: stretch; 
+    align-items: stretch;
 }
 
 /* 3. SIDEBAR (Left Part) */
@@ -30,8 +30,8 @@
     width: 27%;
     min-width: 320px;
     background-color: var(--rec-bg-sidebar);
-    border-right: 2px solid var(--rec-yellow);
-    padding: 20px 30px 40px 60px; 
+    border-right: 1px solid #222;
+    padding: 20px 30px 40px 60px;
     display: flex;
     flex-direction: column;
     gap: 30px;
@@ -41,127 +41,198 @@
 /* 4. RIGHT CONTENT SIDE */
 #rec-page-root .rec-right-side {
     flex: 1;
-    padding: 20px 80px 40px 80px; 
+    padding: 20px 80px 40px 80px;
     background-color: var(--rec-bg-dark);
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
-/* 5. THIN DARK SCROLLER */
-#rec-page-root .rec-left-side::-webkit-scrollbar,
-#rec-page-root .rec-right-side::-webkit-scrollbar {
-    width: 5px;
+#rec-page-root .heading-ques {
+    font-size: 22px;
+    margin: 0 0 12px 0;
+    color: #fff;
+    font-weight: 700;
 }
 
-#rec-page-root .rec-left-side::-webkit-scrollbar-track,
-#rec-page-root .rec-right-side::-webkit-scrollbar-track {
-    background: var(--rec-bg-dark);
+#rec-page-root .text-ques {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--rec-text-dim);
+    margin-bottom: 25px;
 }
 
-#rec-page-root .rec-left-side::-webkit-scrollbar-thumb,
-#rec-page-root .rec-right-side::-webkit-scrollbar-thumb {
-    background: #222; 
-    border-radius: 10px;
-}
-
-#rec-page-root .rec-left-side::-webkit-scrollbar-thumb:hover,
-#rec-page-root .rec-right-side::-webkit-scrollbar-thumb:hover {
-    background: #333;
-}
-
-/* 6. TYPOGRAPHY & ELEMENTS */
+/* Sidebar Titles */
 #rec-page-root .title {
     font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
     color: var(--rec-text-dim);
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     margin: 0 0 15px 0;
+    display: block;
+    opacity: 0.8;
 }
 
-#rec-page-root .heading-ques {
-    font-size: 28px;
-    margin: 0 0 15px 0;
-    color: #fff;
+/* 5. TOPIC INPUT & PDF UPLOAD (Elite Alignment) */
+#rec-page-root .rec-topic-group {
+    background: transparent;
+    border: none;
+    padding: 0;
 }
 
-#rec-page-root .text-ques {
-    font-size: 18px;
-    line-height: 1.6;
-    color: var(--rec-text-dim);
-    margin-bottom: 30px;
-}
-
-/* 7. INPUTS & TEXTAREA */
-#rec-page-root .textarea {
+#rec-page-root .rec-combined-input,
+#rec-page-root .rec-combined-upload {
+    display: flex;
     width: 100%;
-    min-height: 300px;
-    background: #080808;
+    height: 42px;
+    /* Slightly taller for professional feel */
     border: 1px solid var(--rec-border);
     border-radius: 8px;
-    color: #fff;
-    padding: 24px;
-    font-size: 16px;
-    font-family: 'JetBrains Mono', monospace;
-    outline: none;
-    margin-bottom: 25px;
+    overflow: hidden;
+    margin-top: 10px;
+    background: #080808;
+    transition: border-color 0.3s;
 }
 
-#rec-page-root .input {
-    width: 100%;
-    padding: 12px;
-    background: #000;
-    border: 1px solid var(--rec-border);
+#rec-page-root .rec-combined-input:focus-within {
+    border-color: #444;
+}
+
+#rec-page-root .rec-combined-input .input,
+#rec-page-root .rec-file-label {
+    flex: 1;
+    border: none !important;
+    padding: 0 15px;
+    height: 100%;
+    background: transparent;
     color: #fff;
-    border-radius: 6px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    outline: none;
+}
+
+#rec-page-root .rec-file-hidden {
+    display: none;
+}
+
+#rec-page-root .rec-upload-icon {
+    margin-right: 10px;
+    color: var(--rec-yellow);
+    font-size: 14px;
+}
+
+#rec-page-root .rec-btn-attached,
+#rec-page-root .rec-btn-process {
+    width: 100px;
+    background: #17795E;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#rec-page-root .rec-btn-attached:hover,
+#rec-page-root .rec-btn-process:hover {
+    background: #1b8a6b;
+}
+
+/* 6. EVALUATION SECTION */
+#rec-page-root .evaluation-rec {
+    border-top: 1px solid var(--rec-border);
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+#rec-page-root .score-eval {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 12px;
+}
+
+#rec-page-root .evaluation-rec b {
+    color: #ffffff;
+    margin-right: 6px;
+    font-weight: 600;
+}
+
+#rec-page-root .evaluation-c,
+#rec-page-root .evaluation-s,
+#rec-page-root .evaluation-m,
+#rec-page-root .evaluation-a,
+#rec-page-root .evaluation-f {
+    color: var(--rec-text-dim);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+#rec-page-root .evaluation-m,
+#rec-page-root .evaluation-a,
+#rec-page-root .evaluation-f {
+    display: block;
     margin-bottom: 10px;
-    outline: none;
 }
 
-/* 8. BUTTONS */
-#rec-page-root .btn1 {
+/* 7. ACTION BUTTONS (Yellow Theme) */
+#rec-page-root .rec-action-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+#rec-page-root .btn-r,
+#rec-page-root .btn-n,
+#rec-page-root .btn-f {
     background-color: var(--rec-yellow);
     color: #000;
     border: none;
-    padding: 14px 28px;
-    border-radius: 6px;
+    padding: 12px 24px;
+    border-radius: 8px;
     font-weight: 700;
+    font-size: 14px;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: transform 0.2s, opacity 0.2s;
 }
 
-#rec-page-root .btn1:hover { opacity: 0.9; }
-
-#rec-page-root .btn2, 
-#rec-page-root .rec-btn-secondary {
-    background: transparent;
-    border: 1px solid var(--rec-border);
-    color: var(--rec-text-dim);
-    padding: 14px 28px;
-    border-radius: 6px;
-    cursor: pointer;
+#rec-page-root .btn-r:hover,
+#rec-page-root .btn-n:hover,
+#rec-page-root .btn-f:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
 }
 
-#rec-page-root .btn3 {
-    width: 100%;
-    background: #18181b;
-    color: #fff;
-    padding: 12px;
-    border: 1px solid var(--rec-border);
-    cursor: pointer;
-    border-radius: 0 0 6px 6px;
+/* 8. LOADING MESSAGE */
+#rec-page-root .msg {
+    color: var(--rec-yellow);
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 15px;
+    animation: pulseText 1.5s ease-in-out infinite;
 }
 
-#rec-page-root .btn-finish {
-    background-color: #fff;
-    color: #000;
-    border: none;
-    padding: 14px 28px;
-    border-radius: 6px;
-    font-weight: 700;
-    cursor: pointer;
+@keyframes pulseText {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
-/* 9. CIRCLE GRID */
+/* 9. CIRCLE NAVIGATION */
 #rec-page-root .rec-circle-grid {
     display: flex;
     gap: 10px;
@@ -169,50 +240,362 @@
 }
 
 #rec-page-root .rec-nav-circle {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     border: 1px solid var(--rec-border);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: all 0.2s;
 }
 
 #rec-page-root .rec-nav-circle.active {
     border-color: var(--rec-yellow);
     color: var(--rec-yellow);
+    background: rgba(255, 200, 61, 0.05);
 }
 
 #rec-page-root .rec-nav-circle.done {
     background: #111;
+    border-color: #333;
 }
 
-/* 10. EVALUATION */
-#rec-page-root .evaluation-rec {
-    border-top: 1px solid var(--rec-border);
-    padding-top: 30px;
-    margin-top: 20px;
+/* 10. TEXTAREA */
+#rec-page-root .textarea {
+    width: 100%;
+    min-height: 250px;
+    background: #080808;
+    border: 1px solid var(--rec-border);
+    border-radius: 10px;
+    color: #fff;
+    padding: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+    outline: none;
+    margin-bottom: 20px;
+    transition: border-color 0.3s;
 }
 
-#rec-page-root .score-eval {
+#rec-page-root .textarea:focus {
+    border-color: #333;
+}
+
+/* 11. ELITE MODE BUTTONS (Full Yellow Border Hover) */
+#rec-page-root .mode {
     display: flex;
-    gap: 40px;
+    flex-direction: row;
+    gap: 12px;
+}
+
+#rec-page-root .btn1 {
+    flex: 1;
+    height: 52px;
+    background: #0a0a0a;
+    color: var(--rec-text-dim);
+    border: 1px solid var(--rec-border);
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#rec-page-root .btn1:hover {
+    border-color: var(--rec-yellow);
+    /* Full Yellow Border */
+    color: #fff;
+    background: #111112;
+    box-shadow: 0 0 15px rgba(255, 200, 61, 0.1);
+    transform: translateY(-2px);
+}
+
+#rec-page-root .btn1:active {
+    transform: scale(0.97);
+}
+
+/* 12. EMPTY STATE & HIGHLIGHTING */
+#rec-page-root .rec-empty-state {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 25vh;
+    height: 100%;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+#rec-page-root .empty-content {
+    text-align: center;
+    max-width: 650px;
+}
+
+#rec-page-root .empty-icon {
+    font-size: 44px;
+    color: #1a1a1a;
     margin-bottom: 25px;
+    display: block;
 }
 
-/* Targets ALL <b> tags in the evaluation section (Correctness, Score, Missing, Correct Answer, Feedback) to be yellow */
-#rec-page-root .evaluation-rec b {
+#rec-page-root .empty-heading {
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 18px;
+    letter-spacing: -0.02em;
+}
+
+#rec-page-root .empty-description {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--rec-text-dim);
+    font-weight: 400;
+}
+
+/* Highlight style */
+#rec-page-root .highlight {
     color: var(--rec-yellow);
+    font-weight: 600;
 }
 
-#rec-page-root .rec-action-row {
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 13. SCROLLBARS */
+#rec-page-root .rec-left-side::-webkit-scrollbar,
+#rec-page-root .rec-right-side::-webkit-scrollbar {
+    width: 6px;
+}
+
+#rec-page-root .rec-left-side::-webkit-scrollbar-thumb,
+#rec-page-root .rec-right-side::-webkit-scrollbar-thumb {
+    background: #1a1a1a;
+    border-radius: 10px;
+}
+
+#rec-page-root .rec-left-side::-webkit-scrollbar-thumb:hover,
+#rec-page-root .rec-right-side::-webkit-scrollbar-thumb:hover {
+    background: #252525;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* RecommendedPage.css */
+
+/* 1. ROOT SCOPING & VARIABLES */
+#rec-page-root {
+    --rec-yellow: #FFC83D;
+    --rec-bg-dark: #000000;
+    --rec-bg-sidebar: #050505;
+    --rec-border: #1f1f22;
+    --rec-text: #e4e4e7;
+    --rec-text-dim: #a1a1aa;
+
+    background-color: var(--rec-bg-dark);
+    color: var(--rec-text);
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    display: block;
+}
+
+/* 2. LAYOUT STRUCTURE */
+#rec-page-root .rec-full-page {
     display: flex;
-    gap: 15px;
-    margin-top: 30px;
+    height: calc(100vh - 70px);
+    margin-top: 70px;
+    overflow: hidden;
 }
 
-#rec-page-root .msg {
+/* 3. SIDEBAR */
+#rec-page-root .rec-left-side {
+    width: 27%;
+    min-width: 320px;
+    background-color: var(--rec-bg-sidebar);
+    border-right: 1px solid #1a1a1a;
+    padding: 20px 30px 40px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 35px;
+    overflow-y: auto;
+}
+
+/* 4. RIGHT CONTENT SIDE */
+#rec-page-root .rec-right-side {
+    flex: 1;
+    padding: 20px 80px 40px 80px;
+    background-color: var(--rec-bg-dark);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sidebar Titles */
+#rec-page-root .title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--rec-text-dim);
+    letter-spacing: 0.15em;
+    margin: 0 0 15px 0;
+    opacity: 0.6;
+}
+
+/* 11. ELITE MODE BUTTONS (The Upgrade) */
+#rec-page-root .mode {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+#rec-page-root .mode-options {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+#rec-page-root .btn1 {
+    flex: 1;
+    height: 54px;
+    background: rgba(255, 255, 255, 0.03); /* Glass effect */
+    color: var(--rec-text-dim);
+    border: 1px solid var(--rec-border);
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space for icons */
+}
+
+/* Hover: Full Yellow Border & Glow */
+#rec-page-root .btn1:hover {
+    background: rgba(255, 200, 61, 0.05);
+    border-color: var(--rec-yellow);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(255, 200, 61, 0.08);
+    transform: translateY(-3px);
+}
+
+#rec-page-root .btn1 i {
+    font-size: 16px;
     color: var(--rec-yellow);
-    font-size: 14px;
+    opacity: 0.8;
+}
+
+#rec-page-root .btn1:active {
+    transform: scale(0.96);
+}
+
+/* 12. EMPTY STATE & HIGHLIGHTING */
+#rec-page-root .rec-empty-state {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 25vh;
+    height: 100%;
+}
+
+#rec-page-root .empty-content {
+    text-align: center;
+    max-width: 650px;
+}
+
+#rec-page-root .empty-heading {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+#rec-page-root .empty-description {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--rec-text-dim);
+}
+
+#rec-page-root .highlight {
+    color: var(--rec-yellow);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 200, 61, 0.3);
+}
+
+/* 5. TOPIC INPUT & PDF UPLOAD */
+#rec-page-root .rec-combined-input,
+#rec-page-root .rec-combined-upload {
+    display: flex;
+    width: 100%;
+    height: 42px;
+    border: 1px solid var(--rec-border);
+    border-radius: 8px;
+    margin-top: 10px;
+    background: #080808;
+}
+
+#rec-page-root .rec-combined-input .input,
+#rec-page-root .rec-file-label {
+    flex: 1;
+    padding: 0 15px;
+    background: transparent;
+    color: #fff;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    outline: none;
+    border: none;
+}
+
+#rec-page-root .rec-btn-attached,
+#rec-page-root .rec-btn-process {
+    width: 100px;
+    background: #17795E;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+/* 13. SCROLLBARS */
+#rec-page-root .rec-left-side::-webkit-scrollbar { width: 4px; }
+#rec-page-root .rec-left-side::-webkit-scrollbar-thumb {
+    background: #1a1a1a;
+    border-radius: 10px;
 }

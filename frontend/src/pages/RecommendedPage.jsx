@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./RecommendedPage.css";
 import Footer from '../Components/Footer/Footer';
 
@@ -107,31 +107,47 @@ export default function App() {
     <>
       <div id="rec-page-root">
         <div className="rec-full-page">
-
           <div className="rec-left-side">
             {!mode && (
               <div className="mode">
                 <h2 className="title">Select Input Type</h2>
-                <button className="btn1" onClick={() => setMode("topic")}>Use Topic</button>
-                <button className="btn2" onClick={() => setMode("pdf")}>Upload PDF</button>
+                <div className="mode-options">
+                  <button className="btn1" onClick={() => setMode("topic")}> <i className="fa-solid fa-pen-to-square"></i> Use Topic </button>
+                  <button className="btn1" onClick={() => setMode("pdf")}> <i className="fa-solid fa-cloud-arrow-up"></i> Upload PDF </button>
+                </div>
               </div>
             )}
 
             {mode === "topic" && (
-              <div className="input">
+              <div className="rec-topic-group">
                 <h2 className="title">Enter Topic</h2>
-                <input className="input" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. OSI Model" />
-                <button className="btn3" onClick={makeQuestions}>Generate</button>
+                <div className="rec-combined-input">
+                  <input className="input" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. OSI Model" />
+                  <button className="rec-btn-attached" onClick={makeQuestions}> Generate </button>
+                </div>
               </div>
             )}
 
+
+
+
+
             {mode === "pdf" && (
-              <div className="input">
-                <h2 className="title">Upload PDF</h2>
-                <input className="input" type="file" onChange={(e) => setFile(e.target.files[0])} />
-                <button className="btn3" onClick={generateFromPDF}>Generate from PDF</button>
+              <div className="input-group">
+                <h2 className="title">Select Document</h2>
+                <div className="rec-combined-upload">
+                  <label className="rec-file-label">
+                    <input className="rec-file-hidden" type="file" onChange={(e) => setFile(e.target.files[0])} />
+                    <i className="fa-solid fa-cloud-arrow-up rec-upload-icon"></i>
+                    <span>{file ? file.name.substring(0, 10) + ".." : "Select PDF"}</span>
+                  </label>
+                  <button className="rec-btn-process" onClick={generateFromPDF}> <span className="button__text">Process</span> </button>
+                </div>
               </div>
             )}
+
+
+
 
             {newQuestions.length > 0 && (
               <div className="left-ques">
@@ -153,11 +169,11 @@ export default function App() {
                 </div>
               </div>
             )}
-            {loading && <p className="msg">Processing...</p>}
+            {loading && <p className="msg">Processing, Please Wait .....</p>}
           </div>
 
           <div className="rec-right-side">
-            {newQuestions.length > 0 && (
+            {newQuestions.length > 0 ? (
               <div className="content">
                 <h1 className="heading-ques">Question {index + 1}</h1>
                 <p className="text-ques">{newQuestions[index]}</p>
@@ -173,29 +189,39 @@ export default function App() {
                 />
 
                 {!evaluationResult ? (
-                  <button className="btn1" onClick={submit}>Submit Answer</button>
+                  <button className="btn-n" onClick={submit}>Submit</button>
                 ) : (
                   <div className="evaluation-rec">
                     <div className="score-eval">
-                      <span><b>Correctness:</b> {evaluationResult.correctness}</span>
-                      <span><b>Score:</b> {evaluationResult.percentage}%</span>
+                      <span className="evaluation-c"><b>Correctness:</b> {evaluationResult.correctness}</span>
+                      <span className="evaluation-s"><b>Score:</b> {evaluationResult.percentage}%</span>
                     </div>
                     <div className="feedback">
-                      <p><b>What is Missing:</b> {evaluationResult.wrong}</p>
-                      <p><b>Correct Answer:</b> {evaluationResult.correct_answer}</p>
-                      <p><b>Feedback:</b> {evaluationResult.feedback}</p>
+                      <div className="evaluation-m"><b>What is Missing:</b> {evaluationResult.wrong}</div>
+                      <div className="evaluation-a"><b>Correct Answer:</b> {evaluationResult.correct_answer}</div>
+                      <div className="evaluation-f"><b>Feedback:</b> {evaluationResult.feedback}</div>
                     </div>
 
                     <div className="rec-action-row">
-                      <button className="rec-btn-secondary" onClick={retry}>Retry</button>
+                      <button className="btn-r" onClick={retry}>Retry</button>
                       {index < newQuestions.length - 1 ? (
-                        <button className="btn1" onClick={next}>Next</button>
+                        <button className="btn-n" onClick={next}>Next</button>
                       ) : (
-                        <button className="btn-finish" onClick={finish}>Finish</button>
+                        <button className="btn-f" onClick={finish}>Finish</button>
                       )}
                     </div>
                   </div>
                 )}
+              </div>
+            ) : (
+              /* This shows when no questions are generated yet */
+              <div className="rec-empty-state">
+                <div className="empty-content">
+                  <h2 className="empty-heading">Start learning today</h2>
+                  <p className="empty-description">
+                    <span className="highlight">Smart questioning for better learning</span>, where you will get the AI-based evaluation on your every answer and will also be able to prepare in a better way for any topic. Instead of relying on direct answers from AI or any other source, this <span className="highlight">think and answer</span> method will help you get well-prepared for any topic.
+                  </p>
+                </div>
               </div>
             )}
           </div>
