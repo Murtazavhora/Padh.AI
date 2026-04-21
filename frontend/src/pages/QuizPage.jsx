@@ -45,7 +45,7 @@ function QuizPage({ onBack }) {
   ];
 
   const generateQuizFromBackend = async (body) => {
-    const response = await fetch(`${API_BASE}/api/quiz`, {
+    const response = await fetch(`${API_BASE}/api/quiz/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
