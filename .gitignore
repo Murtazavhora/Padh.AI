@@ -32,6 +32,7 @@ backend/.venv/
 .env
 backend/.env
 
+
 # Optional generated folders
 backend/uploads/
 backend/temp/

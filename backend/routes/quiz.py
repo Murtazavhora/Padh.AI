@@ -8,7 +8,8 @@ from typing import Any, Dict, List, Optional
 import httpx
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-
+from dotenv import load_dotenv
+load_dotenv()
 router = APIRouter()
 
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
@@ -158,7 +159,6 @@ async def _generate_with_gemini(
         "temperature": 0.7,
         "max_tokens": 4096,
     }
-
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
