@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import './QuizPage.css';
-import Header from '../Components/Header/Header';
-import Footer from '../Components/Footer/Footer';
 import {
-  FiCheck, FiRotateCcw, FiArrowRight,
-  FiUpload, FiFile, FiChevronRight, FiStar,
-  FiCpu, FiUsers
+  FiCheck,
+  FiRotateCcw,
+  FiArrowRight,
+  FiArrowLeft,
+  FiUpload,
+  FiFile,
+  FiChevronRight,
+  FiStar,
+  FiCpu,
+  FiUsers,
+  FiBookOpen,
+  FiTarget,
+  FiClock,
+  FiGrid,
+  FiAward,
+  FiTrendingUp
 } from 'react-icons/fi';
 
 const BACKEND_URL = 'http://localhost:8000/api/quiz';
@@ -42,7 +53,7 @@ function QuizPage({ onBack }) {
   const [playerOWins, setPlayerOWins] = useState(0);
   const [draws, setDraws] = useState(0);
 
-  // 10 demo questions instead of 5
+  // 10 demo questions
   const dummyQuizQuestions = [
     { id: 1, question: "What is the capital of France?", options: ['London', 'Paris', 'Berlin', 'Madrid'], correct: 1 },
     { id: 2, question: "How many continents are there on Earth?", options: ['5', '6', '7', '8'], correct: 2 },
@@ -199,8 +210,11 @@ function QuizPage({ onBack }) {
     }
   };
 
+  const handleJumpToQuestion = (index) => {
+    setCurrentQuestionIndex(index);
+  };
+
   const handleSubmitQuiz = async () => {
-    // Demo quiz: local scoring
     if (inputMode === 'trial') {
       let correctCount = 0;
       questions.forEach(question => {
@@ -219,7 +233,6 @@ function QuizPage({ onBack }) {
       return;
     }
 
-    // Backend scoring
     try {
       const answersWithStringKeys = {};
       Object.entries(selectedAnswers).forEach(([k, v]) => {
@@ -266,7 +279,6 @@ function QuizPage({ onBack }) {
       } else if (inputMode === 'document' && selectedDocument) {
         body.content = selectedDocument.content.substring(0, 8000);
       } else if (inputMode === 'trial') {
-        // for demo mode, just restart demo questions
         setQuestions(dummyQuizQuestions);
         setCurrentQuestionIndex(0);
         setSelectedAnswers({});
@@ -320,7 +332,24 @@ function QuizPage({ onBack }) {
     setQuizError('');
   };
 
-  // Tic Tac Toe game functions
+  const handleBackToQuizHome = () => {
+  setTopic('');
+  setQuestions([]);
+  setSelectedDocument(null);
+  setInputMode('topic');
+  setCurrentQuestionIndex(0);
+  setSelectedAnswers({});
+  setShowResults(false);
+  setScore(0);
+  setShowDocumentSelector(false);
+  setShowGame(false);
+  setQuizId(null);
+  setDifficultyLevel(1);
+  setQuizStats(null);
+  setQuizError('');
+};
+
+  // Tic Tac Toe
   const calculateWinner = (squares) => {
     const lines = [
       [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -401,61 +430,101 @@ function QuizPage({ onBack }) {
   };
 
   const handleSquareClick = (index) => {
-    if (board[index] || winner) return;
+  if (board[index] || winner) return;
 
-    const newBoard = [...board];
-    newBoard[index] = isXNext ? 'X' : 'O';
-    setBoard(newBoard);
+  // VS AI MODE: player is always X, AI is always O
+  if (gameMode === 'vsAI') {
+    if (!isXNext) return; // block clicks while AI turn
 
-    const { winner: gameWinner, line } = calculateWinner(newBoard);
+    const playerBoard = [...board];
+    playerBoard[index] = 'X';
+    setBoard(playerBoard);
 
-    if (gameWinner) {
-      setWinner(gameWinner);
-      setWinningLine(line || []);
+    const { winner: playerWinner, line: playerLine } = calculateWinner(playerBoard);
 
-      if (gameWinner === 'X') setPlayerXWins(prev => prev + 1);
-      else if (gameWinner === 'O') setPlayerOWins(prev => prev + 1);
-      else if (gameWinner === 'draw') setDraws(prev => prev + 1);
+    if (playerWinner) {
+      setWinner(playerWinner);
+      setWinningLine(playerLine || []);
 
-      setGameHistory([
-        ...gameHistory,
+      if (playerWinner === 'X') setPlayerXWins(prev => prev + 1);
+      else if (playerWinner === 'O') setPlayerOWins(prev => prev + 1);
+      else if (playerWinner === 'draw') setDraws(prev => prev + 1);
+
+      setGameHistory(prev => [
+        ...prev,
         {
-          winner: gameWinner,
+          winner: playerWinner,
           date: new Date().toLocaleTimeString(),
         }
       ]);
-    } else {
-      setIsXNext(!isXNext);
-
-      if (gameMode === 'vsAI' && !isXNext && !gameWinner) {
-        setTimeout(() => {
-          const aiMove = getAIMove(newBoard, gameDifficulty);
-          if (aiMove !== null) {
-            const aiBoard = [...newBoard];
-            aiBoard[aiMove] = 'O';
-            setBoard(aiBoard);
-
-            const { winner: aiWinner, line: aiLine } = calculateWinner(aiBoard);
-
-            if (aiWinner) {
-              setWinner(aiWinner);
-              setWinningLine(aiLine || []);
-              if (aiWinner === 'O') setPlayerOWins(prev => prev + 1);
-              setGameHistory([
-                ...gameHistory,
-                {
-                  winner: aiWinner,
-                  date: new Date().toLocaleTimeString(),
-                }
-              ]);
-            } else {
-              setIsXNext(true);
-            }
-          }
-        }, 500);
-      }
+      return;
     }
-  };
+
+    // AI turn starts
+    setIsXNext(false);
+
+    setTimeout(() => {
+      const aiMove = getAIMove(playerBoard, gameDifficulty);
+      if (aiMove === null) {
+        setIsXNext(true);
+        return;
+      }
+
+      const aiBoard = [...playerBoard];
+      aiBoard[aiMove] = 'O';
+      setBoard(aiBoard);
+
+      const { winner: aiWinner, line: aiLine } = calculateWinner(aiBoard);
+
+      if (aiWinner) {
+        setWinner(aiWinner);
+        setWinningLine(aiLine || []);
+
+        if (aiWinner === 'X') setPlayerXWins(prev => prev + 1);
+        else if (aiWinner === 'O') setPlayerOWins(prev => prev + 1);
+        else if (aiWinner === 'draw') setDraws(prev => prev + 1);
+
+        setGameHistory(prev => [
+          ...prev,
+          {
+            winner: aiWinner,
+            date: new Date().toLocaleTimeString(),
+          }
+        ]);
+      } else {
+        setIsXNext(true); // back to player turn
+      }
+    }, 450);
+
+    return;
+  }
+
+  // TWO PLAYER MODE
+  const newBoard = [...board];
+  newBoard[index] = isXNext ? 'X' : 'O';
+  setBoard(newBoard);
+
+  const { winner: gameWinner, line } = calculateWinner(newBoard);
+
+  if (gameWinner) {
+    setWinner(gameWinner);
+    setWinningLine(line || []);
+
+    if (gameWinner === 'X') setPlayerXWins(prev => prev + 1);
+    else if (gameWinner === 'O') setPlayerOWins(prev => prev + 1);
+    else if (gameWinner === 'draw') setDraws(prev => prev + 1);
+
+    setGameHistory(prev => [
+      ...prev,
+      {
+        winner: gameWinner,
+        date: new Date().toLocaleTimeString(),
+      }
+    ]);
+  } else {
+    setIsXNext(prev => !prev);
+  }
+};
 
   const resetGame = () => {
     setBoard(Array(9).fill(null));
@@ -471,6 +540,14 @@ function QuizPage({ onBack }) {
     setGameHistory([]);
     resetGame();
   };
+  useEffect(() => {
+  if (showGame) {
+    setBoard(Array(9).fill(null));
+    setIsXNext(true);
+    setWinner(null);
+    setWinningLine([]);
+  }
+}, [gameMode, gameDifficulty, showGame]);
 
   const renderSquare = (index) => {
     const isWinning = winningLine.includes(index);
@@ -495,106 +572,182 @@ function QuizPage({ onBack }) {
   const isQuizActive = questions.length > 0 && !showResults;
   const showSetup = !isQuizActive && !showResults;
 
+  const currentQuestion = questions[currentQuestionIndex];
+  const currentQuestionId = currentQuestion?.id;
+  const currentSelectedAnswer = currentQuestionId !== undefined
+    ? selectedAnswers[currentQuestionId]
+    : undefined;
+
+  const sourceLabel =
+    inputMode === 'trial'
+      ? 'Demo Quiz'
+      : inputMode === 'document' && selectedDocument
+        ? selectedDocument.name
+        : topic || 'Topic Quiz';
+
+  const difficultyLabel =
+    difficultyLevel === 1 ? 'Beginner' :
+      difficultyLevel === 2 ? 'Intermediate' :
+        'Advanced';
+
+  const answeredCount = Object.keys(selectedAnswers).length;
+  const percentageScore = questions.length ? Math.round((score / questions.length) * 100) : 0;
+
   return (
     <>
-      <Header />
       <div className="quiz-page">
         <div className="quiz-container">
-          {/* Header Row */}
-          <div className="quiz-header-row">
-            <h1 className="quiz-page-title">Quiz Mode</h1>
-            <button className="quiz-back-button" onClick={onBack}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              Back to Dashboard
+          {/* Top Header */}
+          <div className="quiz-shell-header">
+            <div className="quiz-shell-header-left">
+              <div className="quiz-shell-title-wrap">
+                <h1 className="quiz-shell-title">AI Quiz</h1>
+                <span className="quiz-shell-topic-badge">{sourceLabel}</span>
+              </div>
+              <p className="quiz-shell-subtitle">
+                Test your understanding and track your progress
+              </p>
+            </div>
+
+            <button className="quiz-back-button premium" onClick={handleBackToQuizHome}>
+              <FiArrowLeft />
+              Back
             </button>
           </div>
 
-          {/* Setup UI - only before quiz starts */}
+          {/* Setup Screen */}
           {showSetup && (
-            <>
-              {/* Quiz Intro */}
-              <div className="quiz-intro">
-                <p className="quiz-intro-text">
-                  Test your knowledge with interactive quizzes. Enter a topic for conceptual questions, or pick an uploaded document — quiz from docs uses contextual document content. Score 80% or higher to unlock Tic Tac Toe.
-                </p>
-              </div>
-
-              {/* Action Buttons Row */}
-              <div className="quiz-action-row">
-                <button
-                  className="quiz-trial-btn"
-                  onClick={handleTrialQuiz}
-                  disabled={isGenerating}
-                >
-                  Try Demo Quiz
-                </button>
-
-                <div className="quiz-input-group">
-                  <form onSubmit={handleTopicSubmit} className="quiz-topic-form">
-                    <input
-                      type="text"
-                      className="quiz-topic-input"
-                      placeholder="Enter topic..."
-                      value={topic}
-                      onChange={(e) => setTopic(e.target.value)}
-                      disabled={isGenerating}
-                    />
-                    <button
-                      type="submit"
-                      className="quiz-generate-btn"
-                      disabled={!topic.trim() || isGenerating}
-                    >
-                      {isGenerating ? '...' : 'Generate'}
-                    </button>
-                  </form>
-
-                  <button
-                    className={`quiz-doc-btn ${showDocumentSelector ? 'active' : ''}`}
-                    onClick={handleUploadClick}
-                    disabled={isGenerating}
-                  >
-                    <FiUpload />
-                    <span>Docs</span>
-                  </button>
+            <div className="quiz-setup-shell">
+              <div className="quiz-setup-card hero">
+                <div className="quiz-setup-hero-content">
+                  <div className="quiz-setup-badge">Padh.AI Quiz Mode</div>
+                  <h2 className="quiz-setup-title">
+                    Practice smarter with topic-based and document-based quizzes
+                  </h2>
+                  <p className="quiz-setup-description">
+                    Generate 10-question quizzes from a topic or from uploaded documents.
+                    Score 80% or higher to unlock the gamified reward experience.
+                  </p>
                 </div>
               </div>
 
-              {/* Document Selector */}
-              {showDocumentSelector && (
-                <div className="quiz-document-selector">
-                  <h3 className="quiz-document-title">Uploaded Documents</h3>
-                  {uploadedDocuments.length > 0 ? (
-                    <div className="quiz-document-list">
-                      {uploadedDocuments.map((doc) => (
-                        <div
-                          key={doc.id}
-                          className={`quiz-document-item ${selectedDocument?.id === doc.id ? 'selected' : ''}`}
-                          onClick={() => handleDocumentSelect(doc)}
+              <div className="quiz-setup-grid">
+                <div className="quiz-setup-main">
+                  <div className="quiz-setup-card">
+                    <div className="quiz-section-head">
+                      <h3>Choose Quiz Mode</h3>
+                      <span>Start with what you want to learn</span>
+                    </div>
+
+                    <div className="quiz-action-row upgraded">
+                      <button
+                        className="quiz-trial-btn"
+                        onClick={handleTrialQuiz}
+                        disabled={isGenerating}
+                      >
+                        Try Demo Quiz
+                      </button>
+
+                      <div className="quiz-input-group">
+                        <form onSubmit={handleTopicSubmit} className="quiz-topic-form">
+                          <input
+                            type="text"
+                            className="quiz-topic-input"
+                            placeholder="Enter topic (e.g. NLP, LangChain, OS)..."
+                            value={topic}
+                            onChange={(e) => setTopic(e.target.value)}
+                            disabled={isGenerating}
+                          />
+                          <button
+                            type="submit"
+                            className="quiz-generate-btn"
+                            disabled={!topic.trim() || isGenerating}
+                          >
+                            {isGenerating ? 'Generating...' : 'Generate'}
+                          </button>
+                        </form>
+
+                        <button
+                          className={`quiz-doc-btn ${showDocumentSelector ? 'active' : ''}`}
+                          onClick={handleUploadClick}
+                          disabled={isGenerating}
                         >
-                          <div className="quiz-doc-icon">
-                            <FiFile />
-                          </div>
-                          <div className="quiz-doc-info">
-                            <span className="quiz-doc-name">{doc.name}</span>
-                            <span className="quiz-doc-meta">{doc.date}</span>
-                          </div>
-                          <FiChevronRight className="quiz-doc-arrow" />
-                        </div>
-                      ))}
+                          <FiUpload />
+                          <span>Docs</span>
+                        </button>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="quiz-doc-empty">
-                      <p>No documents uploaded.</p>
-                    </div>
-                  )}
+
+                    {showDocumentSelector && (
+                      <div className="quiz-document-selector">
+                        <h3 className="quiz-document-title">Uploaded Documents</h3>
+                        {uploadedDocuments.length > 0 ? (
+                          <div className="quiz-document-list">
+                            {uploadedDocuments.map((doc) => (
+                              <div
+                                key={doc.id}
+                                className={`quiz-document-item ${selectedDocument?.id === doc.id ? 'selected' : ''}`}
+                                onClick={() => handleDocumentSelect(doc)}
+                              >
+                                <div className="quiz-doc-icon">
+                                  <FiFile />
+                                </div>
+                                <div className="quiz-doc-info">
+                                  <span className="quiz-doc-name">{doc.name}</span>
+                                  <span className="quiz-doc-meta">{doc.date}</span>
+                                </div>
+                                <FiChevronRight className="quiz-doc-arrow" />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="quiz-doc-empty">
+                            <p>No documents uploaded yet.</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-            </>
+
+                <div className="quiz-setup-sidebar">
+                  <div className="quiz-side-card">
+                    <div className="quiz-side-card-title">How it works</div>
+                    <ul className="quiz-info-list">
+                      <li>Generate a 10-question quiz</li>
+                      <li>Answer every question to enable submit</li>
+                      <li>Score 80%+ to unlock the game</li>
+                      <li>Generate harder questions after completion</li>
+                    </ul>
+                  </div>
+
+                  <div className="quiz-side-card">
+                    <div className="quiz-side-card-title">Quiz Features</div>
+                    <div className="quiz-feature-mini-grid">
+                      <div className="quiz-mini-stat">
+                        <span className="quiz-mini-stat-value">10</span>
+                        <span className="quiz-mini-stat-label">Questions</span>
+                      </div>
+                      <div className="quiz-mini-stat">
+                        <span className="quiz-mini-stat-value">3</span>
+                        <span className="quiz-mini-stat-label">Levels</span>
+                      </div>
+                      <div className="quiz-mini-stat">
+                        <span className="quiz-mini-stat-value">RAG</span>
+                        <span className="quiz-mini-stat-label">Docs</span>
+                      </div>
+                      <div className="quiz-mini-stat">
+                        <span className="quiz-mini-stat-value">XP</span>
+                        <span className="quiz-mini-stat-label">Gamified</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
-          {/* Error Display */}
+          {/* Error */}
           {quizError && (
             <div className="quiz-error">
               <span className="quiz-error-icon">⚠️</span>
@@ -602,250 +755,451 @@ function QuizPage({ onBack }) {
             </div>
           )}
 
-          {/* Quiz Content - ONLY questions during active quiz */}
-          {isQuizActive && (
-            <div className="quiz-content">
-              <div className="quiz-source-indicator">
-                {inputMode === 'trial' && <span className="quiz-source-badge">Demo Quiz</span>}
-                {inputMode === 'document' && selectedDocument && (
-                  <span className="quiz-source-badge">{selectedDocument.name}</span>
-                )}
-                {inputMode === 'topic' && topic && (
-                  <span className="quiz-source-badge">{topic}</span>
-                )}
-              </div>
+          {/* Active Quiz Screen */}
+          {isQuizActive && currentQuestion && (
+            <div className="quiz-workspace">
+              {/* LEFT MAIN */}
+              <div className="quiz-main-panel">
+                <div className="quiz-main-card">
+                  <div className="quiz-main-card-top">
+                    <div className="quiz-main-card-top-left">
+                      <span className="quiz-question-progress-label">
+                        Question {currentQuestionIndex + 1} of {questions.length}
+                      </span>
+                    </div>
+                    <div className="quiz-main-card-top-right">
+                      <span className="quiz-complete-label">{Math.round(progress)}% Completed</span>
+                    </div>
+                  </div>
 
-              <div className="quiz-progress">
-                <div className="quiz-progress-bar">
-                  <div className="quiz-progress-fill" style={{ width: `${progress}%` }}></div>
-                </div>
-                <span className="quiz-progress-text">
-                  {Object.keys(selectedAnswers).length}/{questions.length}
-                </span>
-              </div>
+                  <div className="quiz-progress">
+                    <div className="quiz-progress-bar">
+                      <div className="quiz-progress-fill" style={{ width: `${progress}%` }}></div>
+                    </div>
+                  </div>
 
-              <div className="quiz-question-card">
-                <div className="quiz-question-header">
-                  <span className="quiz-question-number">
-                    Q{currentQuestionIndex + 1}/{questions.length}
-                  </span>
-                  <h3 className="quiz-question-text">
-                    {questions[currentQuestionIndex].question}
-                  </h3>
-                </div>
+                  <div className="quiz-question-card upgraded">
+                    <div className="quiz-question-meta-row">
+                      <span className="quiz-difficulty-chip">{difficultyLabel}</span>
+                      <span className="quiz-bookmark-placeholder">Question Focus</span>
+                    </div>
 
-                <div className="quiz-options">
-                  {questions[currentQuestionIndex].options.map((option, index) => {
-                    const isSelected = selectedAnswers[questions[currentQuestionIndex].id] === index;
-                    return (
-                      <button
-                        key={index}
-                        className={`quiz-option ${isSelected ? 'selected' : ''}`}
-                        onClick={() => handleAnswerSelect(questions[currentQuestionIndex].id, index)}
-                      >
-                        <span className="quiz-option-letter">
-                          {String.fromCharCode(65 + index)}
+                    <h3 className="quiz-question-text">
+                      {currentQuestion.question}
+                    </h3>
+
+                    <div className="quiz-options">
+                      {currentQuestion.options.map((option, index) => {
+                        const isSelected = selectedAnswers[currentQuestion.id] === index;
+                        return (
+                          <button
+                            key={index}
+                            className={`quiz-option ${isSelected ? 'selected' : ''}`}
+                            onClick={() => handleAnswerSelect(currentQuestion.id, index)}
+                          >
+                            <span className="quiz-option-letter">
+                              {String.fromCharCode(65 + index)}
+                            </span>
+                            <span className="quiz-option-text">{option}</span>
+                            {isSelected && <FiCheck className="quiz-option-check" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="quiz-answer-preview">
+                      <div className="quiz-answer-preview-left">
+                        <span className="quiz-answer-preview-label">Your Answer</span>
+                        <span className="quiz-answer-preview-value">
+                          {currentSelectedAnswer !== undefined
+                            ? currentQuestion.options[currentSelectedAnswer]
+                            : 'Select an option to continue'}
                         </span>
-                        <span className="quiz-option-text">{option}</span>
-                        {isSelected && <FiCheck className="quiz-option-check" />}
+                      </div>
+
+                      {currentSelectedAnswer !== undefined && (
+                        <button
+                          className="quiz-change-answer-btn"
+                          onClick={() =>
+                            setSelectedAnswers(prev => {
+                              const copy = { ...prev };
+                              delete copy[currentQuestion.id];
+                              return copy;
+                            })
+                          }
+                        >
+                          Change Answer
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="quiz-navigation upgraded">
+                      <button
+                        className="quiz-nav-btn"
+                        onClick={handlePrevQuestion}
+                        disabled={currentQuestionIndex === 0}
+                      >
+                        Previous
                       </button>
-                    );
-                  })}
+
+                      {currentQuestionIndex === questions.length - 1 ? (
+                        <button
+                          className="quiz-submit-btn"
+                          onClick={handleSubmitQuiz}
+                          disabled={Object.keys(selectedAnswers).length !== questions.length}
+                        >
+                          Submit Quiz
+                        </button>
+                      ) : (
+                        <button
+                          className="quiz-nav-btn next"
+                          onClick={handleNextQuestion}
+                        >
+                          Next <FiArrowRight />
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="quiz-navigation">
-                  <button
-                    className="quiz-nav-btn"
-                    onClick={handlePrevQuestion}
-                    disabled={currentQuestionIndex === 0}
-                  >
-                    Previous
-                  </button>
+                <div className="quiz-guidance-card">
+                  <div className="quiz-guidance-icon">💡</div>
+                  <div className="quiz-guidance-content">
+                    <h4>Think Before You Submit!</h4>
+                    <p>
+                      Read carefully, understand deeply, and answer on your own.
+                      AI is here to guide, not replace your learning.
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-                  {currentQuestionIndex === questions.length - 1 ? (
-                    <button
-                      className="quiz-submit-btn"
-                      onClick={handleSubmitQuiz}
-                      disabled={Object.keys(selectedAnswers).length !== questions.length}
+              {/* RIGHT SIDEBAR */}
+              <div className="quiz-sidebar-panel">
+                <div className="quiz-side-card sticky-top">
+                  <div className="quiz-side-card-title">Quiz Progress</div>
+
+                  <div className="quiz-progress-ring-wrap">
+                    <div
+                      className="quiz-progress-ring"
+                      style={{
+                        background: `conic-gradient(#f6b61e ${progress}%, rgba(255,255,255,0.08) ${progress}% 100%)`
+                      }}
                     >
-                      Submit
-                    </button>
-                  ) : (
-                    <button
-                      className="quiz-nav-btn next"
-                      onClick={handleNextQuestion}
-                      disabled={currentQuestionIndex === questions.length - 1}
-                    >
-                      Next <FiArrowRight />
-                    </button>
-                  )}
+                      <div className="quiz-progress-ring-inner">
+                        <span className="quiz-progress-ring-value">{Math.round(progress)}%</span>
+                        <span className="quiz-progress-ring-label">Completed</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="quiz-side-stats">
+                    <div className="quiz-side-stat">
+                      <span className="quiz-side-stat-value">{answeredCount}</span>
+                      <span className="quiz-side-stat-label">Answered</span>
+                    </div>
+                    <div className="quiz-side-stat">
+                      <span className="quiz-side-stat-value">{questions.length}</span>
+                      <span className="quiz-side-stat-label">Total</span>
+                    </div>
+                    <div className="quiz-side-stat">
+                      <span className="quiz-side-stat-value">{difficultyLevel}</span>
+                      <span className="quiz-side-stat-label">Level</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="quiz-side-card">
+                  <div className="quiz-side-card-title">
+                    <FiGrid /> Question Navigator
+                  </div>
+
+                  <div className="quiz-navigator-grid">
+                    {questions.map((q, index) => {
+                      const isAnswered = selectedAnswers[q.id] !== undefined;
+                      const isCurrent = index === currentQuestionIndex;
+
+                      return (
+                        <button
+                          key={q.id}
+                          className={`quiz-nav-chip ${isAnswered ? 'answered' : ''} ${isCurrent ? 'current' : ''}`}
+                          onClick={() => handleJumpToQuestion(index)}
+                        >
+                          {index + 1}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="quiz-nav-legend">
+                    <span><i className="legend-dot answered"></i> Answered</span>
+                    <span><i className="legend-dot current"></i> Current</span>
+                    <span><i className="legend-dot unanswered"></i> Unanswered</span>
+                  </div>
+                </div>
+
+                <div className="quiz-side-card">
+                  <div className="quiz-side-card-title">Quiz Details</div>
+
+                  <div className="quiz-detail-list">
+                    <div className="quiz-detail-row">
+                      <span><FiBookOpen /> Source</span>
+                      <strong>{sourceLabel}</strong>
+                    </div>
+                    <div className="quiz-detail-row">
+                      <span><FiTarget /> Difficulty</span>
+                      <strong>{difficultyLabel}</strong>
+                    </div>
+                    <div className="quiz-detail-row">
+                      <span><FiTrendingUp /> Question Type</span>
+                      <strong>MCQ</strong>
+                    </div>
+                    <div className="quiz-detail-row">
+                      <span><FiClock /> Mode</span>
+                      <strong>Self-paced</strong>
+                    </div>
+                    <div className="quiz-detail-row">
+                      <span><FiAward /> Total Questions</span>
+                      <strong>{questions.length}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="quiz-side-actions">
+                  <button
+                    className="quiz-side-primary"
+                    onClick={handleSubmitQuiz}
+                    disabled={Object.keys(selectedAnswers).length !== questions.length}
+                  >
+                    Finish Quiz
+                  </button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Results Section */}
+          {/* Results */}
           {showResults && (
-            <div className="quiz-results">
-              <div className="quiz-score-card">
-                <h2 className="quiz-score-title">Score</h2>
-                <div className="quiz-score-display">
-                  <span className="quiz-score-number">{score}</span>
-                  <span className="quiz-score-total">/{questions.length}</span>
-                </div>
-                <div className="quiz-score-percentage">
-                  {Math.round((score / questions.length) * 100)}%
-                </div>
+            <div className="quiz-results-shell">
+              <div className="quiz-results-layout">
+                <div className="quiz-results-main">
+                  <div className="quiz-results-card primary">
+                    <div className="quiz-results-head">
+                      <div>
+                        <h2 className="quiz-score-title">Quiz Completed</h2>
+                        <p className="quiz-results-subtitle">
+                          Here’s how you performed in this round
+                        </p>
+                      </div>
+                      <span className="quiz-results-badge">{sourceLabel}</span>
+                    </div>
 
-                {/* Backend stats: XP, Level, Badges */}
-                {quizStats && (
-                  <div className="quiz-backend-stats" style={{ margin: '10px 0', fontSize: '0.9rem' }}>
-                    {quizStats.xp_earned !== undefined && (
-                      <div style={{ marginBottom: '4px' }}>
-                        ⚡ <strong>{quizStats.xp_earned} XP earned</strong>
-                        {quizStats.level && <span style={{ marginLeft: '8px' }}>· Level: <strong>{quizStats.level}</strong></span>}
+                    <div className="quiz-score-hero">
+                      <div className="quiz-score-display">
+                        <span className="quiz-score-number">{score}</span>
+                        <span className="quiz-score-total">/{questions.length}</span>
+                      </div>
+                      <div className="quiz-score-percentage">{percentageScore}%</div>
+                    </div>
+
+                    {quizStats && (
+                      <div className="quiz-backend-stats-grid">
+                        <div className="quiz-stat-pill">
+                          ⚡ <strong>{quizStats.xp_earned ?? 0} XP</strong>
+                        </div>
+                        <div className="quiz-stat-pill">
+                          🧠 <strong>Level {quizStats.level ?? difficultyLevel}</strong>
+                        </div>
+                        {quizStats.badges && quizStats.badges.length > 0 && (
+                          <div className="quiz-stat-pill wide">
+                            🏅 <strong>{quizStats.badges.join(' · ')}</strong>
+                          </div>
+                        )}
                       </div>
                     )}
-                    {quizStats.badges && quizStats.badges.length > 0 && (
-                      <div style={{ marginTop: '6px' }}>
-                        🏅 {quizStats.badges.join(' · ')}
-                      </div>
-                    )}
+
+                    <div className="quiz-performance">
+                      {score === questions.length ? (
+                        <p className="quiz-performance-text perfect">Perfect Score! Outstanding work <FiStar /></p>
+                      ) : score >= Math.ceil(questions.length * 0.8) ? (
+                        <p className="quiz-performance-text good">Great job! Gamified reward unlocked <FiStar /></p>
+                      ) : (
+                        <p className="quiz-performance-text needs-work">Keep practicing — score 80% to unlock the game</p>
+                      )}
+                    </div>
+
+                    <div className="quiz-results-actions">
+                      <button className="quiz-results-btn reset" onClick={handleBackToQuizHome}>
+                        Back
+                      </button>
+
+                      <button
+                        className="quiz-results-btn new"
+                        onClick={handleGenerateMore}
+                        disabled={isGenerating}
+                      >
+                        {isGenerating
+                          ? 'Loading...'
+                          : inputMode === 'trial'
+                            ? 'Generate More'
+                            : `Generate More (Level ${Math.min(difficultyLevel + 1, 3)})`}
+                      </button>
+                    </div>
                   </div>
-                )}
 
-                <div className="quiz-performance">
-                  {score === questions.length ? (
-                    <p className="quiz-performance-text perfect">Perfect Score! <FiStar /></p>
-                  ) : score >= Math.ceil(questions.length * 0.8) ? (
-                    <p className="quiz-performance-text good">Great! Tic Tac Toe unlocked <FiStar /></p>
-                  ) : (
-                    <p className="quiz-performance-text needs-work">Score 80% to unlock game</p>
+                  {showGame && (
+                    <div className="quiz-results-card">
+                      <div className="game-section">
+                        <div className="game-header">
+                          <h3 className="game-title">Reward Unlocked: Tic Tac Toe Challenge</h3>
+                        </div>
+
+                        <div className="game-mode-selector">
+                          <button
+                            className={`mode-btn ${gameMode === 'vsAI' ? 'active' : ''}`}
+                            onClick={() => setGameMode('vsAI')}
+                          >
+                            <FiCpu /> vs AI
+                          </button>
+                          <button
+                            className={`mode-btn ${gameMode === 'twoPlayer' ? 'active' : ''}`}
+                            onClick={() => setGameMode('twoPlayer')}
+                          >
+                            <FiUsers /> 2 Player
+                          </button>
+                        </div>
+
+                        {gameMode === 'vsAI' && (
+                          <div className="difficulty-selector">
+                            <button
+                              className={`difficulty-btn ${gameDifficulty === 'easy' ? 'active' : ''}`}
+                              onClick={() => setGameDifficulty('easy')}
+                            >
+                              Easy
+                            </button>
+                            <button
+                              className={`difficulty-btn ${gameDifficulty === 'medium' ? 'active' : ''}`}
+                              onClick={() => setGameDifficulty('medium')}
+                            >
+                              Medium
+                            </button>
+                            <button
+                              className={`difficulty-btn ${gameDifficulty === 'hard' ? 'active' : ''}`}
+                              onClick={() => setGameDifficulty('hard')}
+                            >
+                              Hard
+                            </button>
+                          </div>
+                        )}
+
+                        <div className="game-stats">
+                          <div className="stat-box">
+                            <span className="stat-label">X</span>
+                            <span className="stat-value">{playerXWins}</span>
+                          </div>
+                          <div className="stat-box">
+                            <span className="stat-label">Draws</span>
+                            <span className="stat-value">{draws}</span>
+                          </div>
+                          <div className="stat-box">
+                            <span className="stat-label">O</span>
+                            <span className="stat-value">{playerOWins}</span>
+                          </div>
+                        </div>
+
+                        <div className="game-board">
+                          <div className="game-status">
+                            {winner ? (
+                              winner === 'draw' ? (
+                                <span className="game-status-text">Draw</span>
+                              ) : (
+                                <span className={`game-status-text ${winner === 'X' ? 'x-win' : 'o-win'}`}>
+                                  Winner: {winner}
+                                </span>
+                              )
+                            ) : (
+                              <span className="game-status-text">
+                                {gameMode === 'vsAI'
+                                  ? (isXNext ? 'Your Turn (X)' : 'Thinking.... (O)')
+                                  : `Player ${isXNext ? 'X' : 'O'} Turn`}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="game-grid">
+                            {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((index) => renderSquare(index))}
+                          </div>
+
+                          <div className="game-controls">
+                            <button className="game-reset-btn" onClick={resetGame}>
+                              <FiRotateCcw /> New Game
+                            </button>
+                            <button className="game-reset-stats-btn" onClick={resetStats}>
+                              Reset Stats
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
 
-                {/* Tic Tac Toe Game */}
-                {showGame && (
-                  <div className="game-section">
-                    <div className="game-header">
-                      <h3 className="game-title">Tic Tac Toe</h3>
-                    </div>
-
-                    <div className="game-mode-selector">
-                      <button
-                        className={`mode-btn ${gameMode === 'vsAI' ? 'active' : ''}`}
-                        onClick={() => setGameMode('vsAI')}
+                <div className="quiz-results-sidebar">
+                  <div className="quiz-side-card">
+                    <div className="quiz-side-card-title">Performance Snapshot</div>
+                    <div className="quiz-progress-ring-wrap">
+                      <div
+                        className="quiz-progress-ring"
+                        style={{
+                          background: `conic-gradient(#f6b61e ${percentageScore}%, rgba(255,255,255,0.08) ${percentageScore}% 100%)`
+                        }}
                       >
-                        <FiCpu /> vs AI
-                      </button>
-                      <button
-                        className={`mode-btn ${gameMode === 'twoPlayer' ? 'active' : ''}`}
-                        onClick={() => setGameMode('twoPlayer')}
-                      >
-                        <FiUsers /> 2 Player
-                      </button>
-                    </div>
-
-                    {gameMode === 'vsAI' && (
-                      <div className="difficulty-selector">
-                        <button
-                          className={`difficulty-btn ${gameDifficulty === 'easy' ? 'active' : ''}`}
-                          onClick={() => setGameDifficulty('easy')}
-                        >
-                          Easy
-                        </button>
-                        <button
-                          className={`difficulty-btn ${gameDifficulty === 'medium' ? 'active' : ''}`}
-                          onClick={() => setGameDifficulty('medium')}
-                        >
-                          Medium
-                        </button>
-                        <button
-                          className={`difficulty-btn ${gameDifficulty === 'hard' ? 'active' : ''}`}
-                          onClick={() => setGameDifficulty('hard')}
-                        >
-                          Hard
-                        </button>
-                      </div>
-                    )}
-
-                    <div className="game-stats">
-                      <div className="stat-box">
-                        <span className="stat-label">X</span>
-                        <span className="stat-value">{playerXWins}</span>
-                      </div>
-                      <div className="stat-box">
-                        <span className="stat-label">Draws</span>
-                        <span className="stat-value">{draws}</span>
-                      </div>
-                      <div className="stat-box">
-                        <span className="stat-label">O</span>
-                        <span className="stat-value">{playerOWins}</span>
+                        <div className="quiz-progress-ring-inner">
+                          <span className="quiz-progress-ring-value">{percentageScore}%</span>
+                          <span className="quiz-progress-ring-label">Score</span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="game-board">
-                      <div className="game-status">
-                        {winner ? (
-                          winner === 'draw' ? (
-                            <span className="game-status-text">Draw</span>
-                          ) : (
-                            <span className={`game-status-text ${winner === 'X' ? 'x-win' : 'o-win'}`}>
-                              Winner: {winner}
-                            </span>
-                          )
-                        ) : (
-                          <span className="game-status-text">
-                            {gameMode === 'vsAI' && !isXNext ? 'AI thinking...' : `Player ${isXNext ? 'X' : 'O'}`}
-                          </span>
-                        )}
+                    <div className="quiz-side-stats">
+                      <div className="quiz-side-stat">
+                        <span className="quiz-side-stat-value">{score}</span>
+                        <span className="quiz-side-stat-label">Correct</span>
                       </div>
-
-                      <div className="game-grid">
-                        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((index) => renderSquare(index))}
+                      <div className="quiz-side-stat">
+                        <span className="quiz-side-stat-value">{questions.length - score}</span>
+                        <span className="quiz-side-stat-label">Wrong</span>
                       </div>
-
-                      <div className="game-controls">
-                        <button className="game-reset-btn" onClick={resetGame}>
-                          <FiRotateCcw /> New Game
-                        </button>
-                        <button className="game-reset-stats-btn" onClick={resetStats}>
-                          Reset Stats
-                        </button>
+                      <div className="quiz-side-stat">
+                        <span className="quiz-side-stat-value">{difficultyLevel}</span>
+                        <span className="quiz-side-stat-label">Level</span>
                       </div>
                     </div>
                   </div>
-                )}
 
-                {/* Results Actions - ONLY 2 buttons */}
-                <div className="quiz-results-actions">
-                  <button className="quiz-results-btn reset" onClick={onBack}>
-                    Back to Dashboard
-                  </button>
-
-                  <button
-                    className="quiz-results-btn new"
-                    onClick={handleGenerateMore}
-                    disabled={isGenerating}
-                  >
-                    {isGenerating
-                      ? 'Loading...'
-                      : inputMode === 'trial'
-                        ? 'Generate More'
-                        : `Generate More (Level ${Math.min(difficultyLevel + 1, 3)})`}
-                  </button>
+                  <div className="quiz-side-card">
+                    <div className="quiz-side-card-title">Next Step</div>
+                    <p className="quiz-side-note">
+                      Try a harder round with adaptive difficulty and continue improving your retention.
+                    </p>
+                    <button
+                      className="quiz-side-primary"
+                      onClick={handleGenerateMore}
+                      disabled={isGenerating}
+                    >
+                      {isGenerating ? 'Loading...' : 'Generate More Questions'}
+                    </button>
+                  </div>
                 </div>
+              </div>
 
-                {/* Optional: if you want a hidden reset route for internal use only */}
-                <div style={{ display: 'none' }}>
-                  <button onClick={handleNewQuiz}>Hidden Reset</button>
-                </div>
+              <div style={{ display: 'none' }}>
+                <button onClick={handleNewQuiz}>Hidden Reset</button>
               </div>
             </div>
           )}
         </div>
       </div>
-      <Footer />
     </>
   );
 }
