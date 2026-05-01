@@ -28,12 +28,14 @@ class QuizQuestion(BaseModel):
 class QuizGenerateRequest(BaseModel):
     topic: Optional[str] = None
     content: Optional[str] = None
-    difficulty_level: int = Field(default=1, ge=1, le=3)
+    document_id: Optional[str] = None
+    difficulty_level: int = Field(default=1, ge=1, le=3)   
 
 
 class QuizGenerateMoreRequest(BaseModel):
     topic: Optional[str] = None
     content: Optional[str] = None
+    document_id: Optional[str] = None
     difficulty_level: int = Field(default=2, ge=1, le=3)
 
 
@@ -568,9 +570,29 @@ def _compute_gamification(questions: List[QuizQuestion], answers: Dict[str, int]
 async def generate_quiz(req: QuizGenerateRequest):
     topic = _normalize_text(req.topic)
     content = _normalize_text(req.content)
+
+    # 🔥 HANDLE DOCUMENT ID
+    if req.document_id:
+        from services.supabaseClient import supabase_admin
+        res = supabase_admin.table("documents") \
+            .select("*") \
+            .eq("id", req.document_id) \
+            .execute()
+
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Document not found")
+        doc = res.data[0]
+        content = _normalize_text(doc.get("content"))
+
+    # ❗ VALIDATION
     if not topic and not content:
         raise HTTPException(status_code=400, detail="Either topic or content must be provided.")
-    return await _generate_quiz(topic=topic, content=content, difficulty_level=req.difficulty_level)
+
+    return await _generate_quiz(
+        topic=topic,
+        content=content,
+        difficulty_level=req.difficulty_level
+    )
 
 
 @router.post("/submit")
@@ -591,6 +613,26 @@ async def submit_quiz(req: QuizSubmitRequest):
 async def generate_more_quiz(req: QuizGenerateMoreRequest):
     topic = _normalize_text(req.topic)
     content = _normalize_text(req.content)
+
+    if req.document_id:
+        from services.supabaseClient import supabase_admin
+
+        res = supabase_admin.table("documents") \
+            .select("*") \
+            .eq("id", req.document_id) \
+            .execute()
+
+        if not res.data:
+            raise HTTPException(status_code=404, detail="Document not found")
+
+        doc = res.data[0]
+        content = _normalize_text(doc.get("content"))
+
     if not topic and not content:
         raise HTTPException(status_code=400, detail="Either topic or content must be provided.")
-    return await _generate_quiz(topic=topic, content=content, difficulty_level=req.difficulty_level)
+
+    return await _generate_quiz(
+        topic=topic,
+        content=content,
+        difficulty_level=req.difficulty_level
+    )

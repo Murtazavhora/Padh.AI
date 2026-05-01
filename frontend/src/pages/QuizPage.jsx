@@ -71,7 +71,7 @@ function QuizPage({ onBack }) {
     loadDocuments();
 
     const handleDocumentsUpdated = (e) => {
-      setUploadedDocuments(e.detail);
+      loadDocuments();
     };
 
     window.addEventListener('documentsUpdated', handleDocumentsUpdated);
@@ -81,13 +81,34 @@ function QuizPage({ onBack }) {
     };
   }, []);
 
-  const loadDocuments = () => {
-    const savedDocs = localStorage.getItem('recentDocuments');
-    if (savedDocs) {
-      const parsedDocs = JSON.parse(savedDocs);
-      setUploadedDocuments(parsedDocs);
-    }
-  };
+  const API_BASE = 'http://localhost:8000';
+
+const loadDocuments = async () => {
+  try {
+    const token = localStorage.getItem('token');
+
+    const res = await fetch(`${API_BASE}/api/documents/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) throw new Error("Failed to load documents");
+
+    const data = await res.json();
+
+    const parsedDocs = data.map(doc => ({
+      id: doc.id,
+      name: doc.file_name,
+      date: new Date(doc.created_at).toLocaleDateString(),
+    }));
+
+    setUploadedDocuments(parsedDocs);
+  } catch (err) {
+    console.error(err);
+    setQuizError("Failed to load documents");
+  }
+};
 
   const handleTrialQuiz = () => {
     setIsGenerating(true);
@@ -148,7 +169,7 @@ function QuizPage({ onBack }) {
   };
 
   const handleDocumentSelect = async (doc) => {
-    setSelectedDocument(doc);
+    
     setShowDocumentSelector(false);
     setInputMode('document');
     setIsGenerating(true);
@@ -157,22 +178,23 @@ function QuizPage({ onBack }) {
     setQuestions([]);
     setQuizStats(null);
 
-    if (!doc.content || doc.content.trim().length === 0) {
-      setQuizError('No readable content in this document. Please re-upload the file.');
-      setIsGenerating(false);
-      return;
-    }
 
     try {
+      const token = localStorage.getItem('token');
+
       const response = await fetch(`${BACKEND_URL}/generate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: doc.content.substring(0, 8000) }),
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ document_id: doc.id }),
       });
 
       if (!response.ok) throw new Error('Backend error');
 
       const data = await response.json();
+      setSelectedDocument(doc);
       setQuestions(data.questions || []);
       setQuizId(data.quiz_id);
       setDifficultyLevel(data.difficulty_level || 1);
@@ -277,7 +299,7 @@ function QuizPage({ onBack }) {
       if (inputMode === 'topic') {
         body.topic = topic.trim();
       } else if (inputMode === 'document' && selectedDocument) {
-        body.content = selectedDocument.content.substring(0, 8000);
+        body.document_id = selectedDocument.id;
       } else if (inputMode === 'trial') {
         setQuestions(dummyQuizQuestions);
         setCurrentQuestionIndex(0);
@@ -290,9 +312,14 @@ function QuizPage({ onBack }) {
         return;
       }
 
+      const token = localStorage.getItem('token');
+
       const response = await fetch(`${BACKEND_URL}/generate-more`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(body),
       });
 
@@ -332,21 +359,26 @@ function QuizPage({ onBack }) {
     setQuizError('');
   };
 
-  const handleBackToQuizHome = () => {
-  setTopic('');
-  setQuestions([]);
-  setSelectedDocument(null);
-  setInputMode('topic');
-  setCurrentQuestionIndex(0);
-  setSelectedAnswers({});
-  setShowResults(false);
-  setScore(0);
-  setShowDocumentSelector(false);
-  setShowGame(false);
-  setQuizId(null);
-  setDifficultyLevel(1);
-  setQuizStats(null);
-  setQuizError('');
+  const handleBack = () => {
+  // 🧠 Case 1: User is inside quiz (questions screen)
+  if (questions.length > 0 && !showResults) {
+    setQuestions([]);
+    setSelectedAnswers({});
+    setCurrentQuestionIndex(0);
+    return;
+  }
+
+  // 🧠 Case 2: User is on results screen
+  if (showResults) {
+    setShowResults(false);
+    setQuestions([]);
+    return;
+  }
+
+  // 🧠 Case 3: User is on setup screen → go to dashboard
+  if (onBack) {
+    onBack();
+  }
 };
 
   // Tic Tac Toe
@@ -609,7 +641,7 @@ function QuizPage({ onBack }) {
               </p>
             </div>
 
-            <button className="quiz-back-button premium" onClick={handleBackToQuizHome}>
+            <button className="quiz-back-button premium" onClick={handleBack}>
               <FiArrowLeft />
               Back
             </button>
@@ -1029,7 +1061,7 @@ function QuizPage({ onBack }) {
                     </div>
 
                     <div className="quiz-results-actions">
-                      <button className="quiz-results-btn reset" onClick={handleBackToQuizHome}>
+                      <button className="quiz-results-btn reset" onClick={handleBack}>
                         Back
                       </button>
 
