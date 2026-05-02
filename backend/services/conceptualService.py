@@ -1,154 +1,216 @@
 import json
-from dotenv import load_dotenv
-from google import genai
-import numpy as np
-import faiss
+import asyncio
 from pypdf import PdfReader
-from sentence_transformers import SentenceTransformer
+import os
 
-load_dotenv()
+from services.groqService import groq_chat
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-MODEL = os.getenv("MODEL")
 
-# ==============================
-# 🔹 API LOGIC (LLM ONLY)
-# ==============================
+# ---------------------- SAFE GROQ CALL ----------------------
+async def ask(prompt):
+    for attempt in range(2):  # retry once
+        try:
+            res = await groq_chat(
+                [{"role": "user", "content": prompt}],
+                temperature=0.4,
+                max_tokens=700
+            )
+            return res
+        except Exception as e:
+            print("[GROQ ERROR]", e)
+            await asyncio.sleep(1)
 
-# ------------------ SAFE CALL ------------------
-def ask(prompt):
-    try:
-        res = client.models.generate_content(
-            model=MODEL,
-            contents=prompt
-        )
-        return res.text
-    except Exception as e:
-        return str(e)
+    return None
 
-# ------------------ CLEAN RESPONSE ------------------
+
 def clean_json(res):
     return (res or "").replace("```json", "").replace("```", "").strip()
 
 
-# ------------------ GENERATE QUESTIONS ------------------
-def generate_questions(topic):
+# ---------------------- DIFFICULTY ----------------------
+def get_difficulty_label(level: int):
+    return {1: "easy", 2: "medium", 3: "hard"}.get(level, "easy")
+
+
+def get_difficulty_instruction(level: int):
+    if level == 1:
+        return "Basic understanding and definitions."
+    elif level == 2:
+        return "Application and reasoning."
+    elif level == 3:
+        return "Deep analysis and critical thinking."
+    return ""
+
+
+# ---------------------- FALLBACKS ----------------------
+def fallback_questions(input_text, difficulty="easy"):
+    base = (input_text or "this topic")[:40]
+    return {
+        "questions": [
+            f"What is {base}?",
+            f"Explain {base} with example",
+            f"Why is {base} important?",
+            f"Where is {base} used?",
+            f"Describe {base} in simple terms"
+        ]
+    }
+
+
+def fallback_more():
+    return {
+        "questions": [
+            "Advanced question 1",
+            "Advanced question 2",
+            "Advanced question 3",
+            "Advanced question 4",
+            "Advanced question 5"
+        ]
+    }
+
+
+def fallback_eval():
+    return {
+        "correctness": "Unable to evaluate",
+        "percentage": 0,
+        "wrong": "Try again",
+        "correct_answer": "Explain clearly",
+        "feedback": "Add more detail"
+    }
+
+
+# ---------------------- GENERATE QUESTIONS ----------------------
+async def generate_questions(input_text, difficulty_level=1):
+    difficulty = get_difficulty_label(difficulty_level)
+    instruction = get_difficulty_instruction(difficulty_level)
+
+    safe_text = (input_text or "")[:1500]  # 🔥 reduced
+
     prompt = f"""
-Return ONLY JSON.
+Generate EXACTLY 5 conceptual questions.
 
-{{
-  "questions": ["Q1","Q2","Q3","Q4","Q5"]
-}}
+Difficulty: {difficulty.upper()}
+Guidelines: {instruction}
 
-Generate conceptual questions on topic: {topic}
+Content:
+{safe_text}
+
+Return ONLY JSON:
+{{"questions": ["Q1","Q2","Q3","Q4","Q5"]}}
 """
-    res = ask(prompt)
-    res = clean_json(res)
-    try:
-        return json.loads(res)
-    except:
-        return {"questions": res.split("\n")}
 
-# ------------------ EVALUATE ANSWER ------------------
-def evaluate_answer(question, answer):
+    res = await ask(prompt)
+
+    if not res:
+        return fallback_questions(input_text, difficulty)
+
+    res = clean_json(res)
+
+    try:
+        data = json.loads(res)
+        if "questions" in data and isinstance(data["questions"], list):
+            return data
+    except Exception as e:
+        print("[JSON ERROR]", e)
+
+    return fallback_questions(input_text, difficulty)
+
+
+# ---------------------- GENERATE MORE ----------------------
+async def generate_more_questions(input_text, current_questions, difficulty_level=2):
+    difficulty = get_difficulty_label(difficulty_level)
+    instruction = get_difficulty_instruction(difficulty_level)
+
+    safe_text = (input_text or "")[:1500]
+
+    existing = "\n".join([f"- {q}" for q in current_questions]) if current_questions else "None"
+
     prompt = f"""
+Generate EXACTLY 5 NEW conceptual questions.
+
+Difficulty: {difficulty.upper()}
+Guidelines: {instruction}
+
+Avoid repeating:
+{existing}
+
+Content:
+{safe_text}
+
+Return ONLY JSON:
+{{"questions": ["Q1","Q2","Q3","Q4","Q5"]}}
+"""
+
+    res = await ask(prompt)
+
+    if not res:
+        return fallback_more()
+
+    res = clean_json(res)
+
+    try:
+        data = json.loads(res)
+        if "questions" in data:
+            return data
+    except Exception as e:
+        print("[JSON ERROR]", e)
+
+    return fallback_more()
+
+
+# ---------------------- EVALUATE ----------------------
+async def evaluate_answer(question, answer):
+    prompt = f"""
+Evaluate this answer.
+
+Q: {question}
+A: {answer}
+
 Return ONLY JSON:
 {{
-  "correctness": "Correct | Partially Correct | Incorrect",
-  "percentage": number,
-  "wrong": "what is missing",
-  "correct_answer": "best answer",
-  "feedback": "short feedback"
+  "correctness": "Correct/Partially Correct/Incorrect",
+  "percentage": 0-100,
+  "wrong": "what's missing",
+  "correct_answer": "model answer",
+  "feedback": "short suggestion"
 }}
-Question: {question}
-Answer: {answer}
 """
-    res = ask(prompt)
+
+    res = await ask(prompt)
+
+    if not res:
+        return fallback_eval()
+
     res = clean_json(res)
+
     try:
         return json.loads(res)
-    except:
-        return {
-            "correctness": "Error",
-            "percentage": 0,
-            "wrong": "Parsing failed",
-            "correct_answer": "",
-            "feedback": res
-        }
+    except Exception as e:
+        print("[JSON ERROR]", e)
+        return fallback_eval()
 
-# ------------------ REWRITE ------------------
-def rewrite_answer(answer):
+
+# ---------------------- REWRITE ----------------------
+async def rewrite_answer(answer):
     prompt = f"Improve this answer:\n{answer}"
-    res = ask(prompt)
-    return {"rewritten": res}
+    res = await ask(prompt)
+    return {"rewritten": res or "Could not rewrite"}
 
-# ==============================
-# 🔹 RAG LOGIC (PDF BASED)
-# ==============================
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
-documents = []
-index = None
-
-# ------------------ Text Extraction ------------------
-def extract_text(file_path):
-    reader = PdfReader(file_path)
-    text = ""
-    for page in reader.pages:
-        text += page.extract_text()
-    return text
-
-# ------------------ Chunking ------------------
-def chunk_text(text, chunk_size=300):
-    words = text.split()
-    chunks = []
-    for i in range(0, len(words), chunk_size):
-        chunks.append(" ".join(words[i:i+chunk_size]))
-    return chunks
-
-# ------------------ Embedding & Vector DB ------------------
-def create_vector_store(chunks):
-    global index, documents
-    documents = chunks
-
-    embeddings = model.encode(chunks)
-    dim = embeddings.shape[1]
-
-    index = faiss.IndexFlatL2(dim)
-    index.add(np.array(embeddings))
-
-# ------------------ Retrieve Chunks ------------------
-def retrieve_chunks(query, top_k=3):
-    query_vec = model.encode([query])
-    distances, indices = index.search(np.array(query_vec), top_k)
-    return [documents[i] for i in indices[0]]
-
-# ------------------ Question Generation From PDF ------------------
-def generate_questions_from_pdf(file_path):
-    text = extract_text(file_path)
-    chunks = chunk_text(text)
-
-    create_vector_store(chunks)
-
-    retrieved_chunks = retrieve_chunks("generate conceptual questions")
-    context = "\n".join(retrieved_chunks)
-
-    prompt = f"""
-Return ONLY JSON.
-
-{{
-  "questions": ["Q1","Q2","Q3","Q4","Q5"]
-}}
-
-Generate conceptual questions based on the following content:
-{context}
-"""
-
-    res = ask(prompt)
-    res = clean_json(res)
-
+# ---------------------- PDF ----------------------
+async def generate_questions_from_pdf(file_path):
     try:
-        return json.loads(res)
-    except:
-        return {"questions": res.split("\n")}
-    
+        reader = PdfReader(file_path)
+        text = ""
+
+        for page in reader.pages:
+            text += page.extract_text() or ""
+
+        return await generate_questions(text, 1)
+
+    except Exception as e:
+        print("[PDF ERROR]", e)
+        return fallback_questions("")
+
+    finally:
+        if os.path.exists(file_path):
+            os.remove(file_path)

@@ -28,7 +28,8 @@
   color: var(--text-main) !important;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  font-family: 'Anybody', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Poppins', sans-serif;
+  margin: 0;
 }
 
 .recent-card {
@@ -72,55 +73,57 @@
   border-radius: 10px;
 }
 
-.recent-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* Rows */
 .recent-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  font-size: 14.5px;
-  color: #d1d1d1;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: 'Anybody', -apple-system, BlinkMacSystemFont, sans-serif;
-  flex-shrink: 0;
-  min-height: 56px;
+  padding: 11px 12px;
+  margin: 1px 0;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+  min-height: 61px;
+  background: transparent;
+  position: relative;
+  cursor: pointer;
 }
 
-.recent-row + .recent-row {
-  border-top: 0.5px solid rgba(255, 255, 255, 0.06) !important;
+.recent-row:not(.empty-row):hover {
+  background: var(--glass-bg) !important;
+}
+
+/* ADD DIVIDER LINE AFTER EACH DOCUMENT (except last) */
+.recent-row:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 12px;
+  right: 12px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Remove any border from last row */
+.recent-row:last-child {
+  border-bottom: none !important;
+  margin-bottom: 0 !important;
 }
 
 /* Empty row styling */
 .recent-row.empty-row {
   cursor: default;
-  opacity: 0.5;
+  opacity: 0.7;
 }
 
 .recent-row.empty-row:hover {
-  background: transparent;
-  transform: none;
+  background: transparent !important;
 }
 
-.recent-row:not(.empty-row) {
-  cursor: pointer;
-}
-
-.recent-row:not(.empty-row):hover {
-  transform: translateX(2px);
-}
-
+/* Document content wrapper */
 .doc-content {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
 }
 
-/* Document row with icon */
 .doc-icon-text {
   display: flex;
   align-items: center;
@@ -129,13 +132,10 @@
   min-width: 0;
 }
 
-/* Icon wrapper - Warm color theme */
+/* ICON STYLES - NO BORDER, CLEAN DESIGN */
 .doc-icon-wrapper {
-  width: 30px !important;
-  height: 30px !important;
-  background: rgba(232, 184, 122, 0.1) !important;
-  border: 0.5px solid rgba(232, 184, 122, 0.2) !important;
-  border-radius: 8px !important;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -145,70 +145,72 @@
 }
 
 .doc-icon {
+  color: var(--accent-amber) !important;
+  font-size: 18px;
+  transition: color 0.2s ease;
+}
+
+.recent-row:not(.empty-row):hover .doc-icon {
   color: #e8b87a !important;
-  font-size: 15px !important;
-  font-weight: 400 !important;
 }
 
-/* Empty row icon - more subtle */
-.empty-row .doc-icon-wrapper {
-  background: rgba(232, 184, 122, 0.03) !important;
-  border-color: rgba(232, 184, 122, 0.08) !important;
-}
-
-.empty-row .doc-icon {
-  color: rgba(232, 184, 122, 0.3) !important;
-}
-
+/* Document details wrapper */
 .doc-details {
   display: flex;
   flex-direction: column;
+  gap: 2px;
   min-width: 0;
-  flex: 1;
 }
 
-/* Text colors - #d1d1d1 */
+/* Text styling for document name */
 .doc-name {
+  font-size: 14px;
   font-weight: 500;
-  color: #d1d1d1 !important;
-  letter-spacing: 0.3px;
-  font-family: 'Anybody', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.4;
+  letter-spacing: 0.2px;
+  color: var(--text-dim) !important;
+  transition: color 0.2s ease;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: 4px;
-  font-size: 14.5px !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Poppins', sans-serif;
 }
 
+/* Empty state text styling */
 .empty-name {
-  color: #d1d1d1 !important;
+  color: rgba(209, 209, 209, 0.5) !important;
   font-style: italic;
-  font-weight: 400;
-  font-size: 13.5px !important;
 }
 
+/* Text styling for document date */
 .doc-date {
-  font-size: 12.5px !important;
-  color: #d1d1d1 !important;
+  font-size: 11.5px;
   font-weight: 400;
-  letter-spacing: 0.2px;
-  opacity: 0.8;
+  line-height: 1.3;
+  letter-spacing: 0.1px;
+  color: rgba(209, 209, 209, 0.45) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Poppins', sans-serif;
 }
 
 .empty-date {
-  font-size: 12.5px !important;
-  color: #d1d1d1 !important;
-  font-style: italic;
-  opacity: 0.6;
+  color: rgba(209, 209, 209, 0.3) !important;
 }
 
-/* Row actions container */
+/* Hover effect - text becomes brighter */
+.recent-row:not(.empty-row):hover .doc-name {
+  color: var(--text-main) !important;
+}
+
+.recent-row:not(.empty-row):hover .doc-date {
+  color: rgba(209, 209, 209, 0.7) !important;
+}
+
+/* Row actions (remove button & arrow) */
 .doc-row-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-shrink: 0;
-  margin-left: 8px;
 }
 
 .doc-remove-btn {
@@ -217,12 +219,18 @@
   border: none;
   color: rgba(255, 80, 80, 0.6);
   cursor: pointer;
+  transition: all 0.2s;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Poppins', sans-serif;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-  padding: 0;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.recent-row:hover .doc-remove-btn {
+  opacity: 1;
 }
 
 .doc-remove-btn:hover {
@@ -230,108 +238,61 @@
   transform: scale(1.1);
 }
 
-/* Arrow - Warm color */
-.doc-arrow {
-  color: #e8b87a !important;
-  font-size: 14.5px !important;
-  font-weight: 300 !important;
-  transition: all 0.2s ease;
+/* Chevron arrow icon */
+.recent-row svg:last-child {
+  color: var(--accent-amber);
+  opacity: 0.3;
+  transition: transform 0.2s ease, opacity 0.2s ease;
   flex-shrink: 0;
-  opacity: 0.5;
 }
 
-.recent-row:not(.empty-row):hover .doc-arrow {
-  transform: translateX(3px);
-  opacity: 0.8;
+.recent-row:not(.empty-row):hover svg:last-child {
+  opacity: 1;
+  transform: translateX(4px);
 }
 
-/* No documents state */
-.no-documents {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  color: #d1d1d1;
-  font-style: italic;
-  text-align: center;
-  flex: 1;
-}
-
-.empty-icon {
-  margin-bottom: 12px;
-  opacity: 0.5;
-}
-
-.empty-icon .doc-icon {
-  color: rgba(232, 184, 122, 0.3) !important;
-}
-
-.no-documents span {
-  font-size: 14.5px;
-  margin-bottom: 8px;
-  color: #d1d1d1 !important;
-}
-
-.no-docs-hint {
-  font-size: 12.5px !important;
-  color: #d1d1d1 !important;
-  margin: 0;
-  line-height: 1.4;
-  max-width: 200px;
-  opacity: 0.7;
-}
-
-/* Footer with button */
+/* Footer section */
 .recent-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 0.5px solid rgba(255, 255, 255, 0.08) !important;
-  padding-top: 16px;
-  margin-top: 0;
-  min-height: 40px;
+  padding-top: 14px;
+  border-top: 1px solid var(--glass-border);
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-/* recent-desc - INCREASED BY 0.5px (back to 13px) */
-.recent-desc {
-  font-size: 13px !important;
-  color: #d1d1d1 !important;
-  margin: 0;
+.recent-footer p {
+  font-size: 13px;
+  color: rgba(209, 209, 209, 0.6);
   line-height: 1.4;
-  flex: 1;
-  opacity: 0.8;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Poppins', sans-serif;
+  margin: 0;
 }
 
-.footer-spacer {
-  width: 80px;
+/* View All / Show Less button */
+.recent-footer button {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 7px;
+  padding: 7px 18px;
+  color: var(--text-main);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Poppins', sans-serif;
 }
 
-/* View All Button */
-.view-all-btn {
+.recent-footer button:hover {
   background: rgba(255, 255, 255, 0.1) !important;
-  border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 6px !important;
-  padding: 8px 20px !important;
-  color: rgba(255, 255, 255, 0.9) !important;
-  font-size: 12.5px !important;
-  font-weight: 500 !important;
-  font-family: 'Anybody', sans-serif;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  min-width: 90px;
-  white-space: nowrap;
+  border-color: var(--accent-amber) !important;
+  transform: translateY(-1px);
 }
 
-.view-all-btn:hover {
-  background: rgba(255, 255, 255, 0.15) !important;
-  transform: translateY(-1px) !important;
-  border-color: #e8b87a !important;
-}
-
-/* =========================================== */
-/* RESPONSIVE STYLES - MATCHING QuickActions */
-/* =========================================== */
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
 
 @media (max-width: 768px) {
   .recent-docs-wrapper {
@@ -340,62 +301,11 @@
   }
 
   .recent-card {
-    padding: 20px;
+    padding: 16px 18px;
   }
-  
-  .recent-row {
-    padding: 12px 0;
-    font-size: 14.5px;
-    min-height: 56px;
-  }
-  
-  .recent-list {
-    max-height: 260px;
-  }
-  
-  .recent-footer {
-    padding-top: 16px;
-  }
-  
-  .recent-desc {
-    font-size: 13px;
-  }
-  
-  .view-all-btn {
-    padding: 8px 20px;
-    font-size: 12.5px;
-  }
-  
-  .doc-name {
-    font-size: 14.5px !important;
-  }
-  
-  .doc-date {
-    font-size: 12.5px !important;
-  }
-  
-  .footer-spacer {
-    width: 90px;
-  }
-}
 
-/* Tablet */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .recent-docs-wrapper {
-    padding-left: 10px !important;
-  }
-  
-  .qa-header {
-    margin-bottom: 16px;
-  }
-  
-  .qa-title {
-    font-size: 14px;
-  }
-  
-  .recent-card {
-    padding: 18px;
-    border-radius: 10px;
+  .recent-footer p {
+    display: none;
   }
 
   .recent-row {
@@ -408,54 +318,42 @@
   }
 
   .doc-icon-wrapper {
-    width: 28px !important;
-    height: 28px !important;
+    width: 32px;
+    height: 32px;
   }
 
   .doc-icon {
-    font-size: 14px !important;
+    font-size: 16px;
   }
-  
+
   .doc-name {
-    font-size: 13.5px !important;
+    font-size: 13px;
   }
-  
+
   .doc-date {
-    font-size: 11.5px !important;
+    font-size: 10px;
   }
   
-  .doc-arrow {
-    font-size: 13.5px !important;
+  /* Make footer button full width */
+  .recent-footer button {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 6px !important;
+    padding: 10px 24px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .recent-footer button:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 200, 100, 0.4) !important;
+    transform: translateY(-1px) !important;
   }
   
   .recent-footer {
-    padding-top: 14px;
-  }
-  
-  .recent-desc {
-    font-size: 12px;
-  }
-  
-  .view-all-btn {
-    padding: 7px 18px;
-    font-size: 11.5px;
-    min-width: 85px;
-  }
-  
-  .footer-spacer {
-    width: 85px;
-  }
-  
-  .no-documents {
-    padding: 30px 15px;
-  }
-  
-  .no-documents span {
-    font-size: 13.5px;
-  }
-  
-  .no-docs-hint {
-    font-size: 11.5px;
+    flex-direction: column;
   }
 }
 
@@ -484,54 +382,29 @@
   }
 
   .doc-icon {
-    font-size: 13px !important;
+    font-size: 14px;
   }
-  
+
   .doc-name {
-    font-size: 13.5px !important;
-  }
-  
-  .doc-date {
-    font-size: 11.5px !important;
-  }
-  
-  .doc-arrow {
-    font-size: 13.5px !important;
-  }
-  
-  .recent-footer {
-    flex-direction: row;
-    align-items: center;
-    gap: 12px;
-    padding-top: 16px;
-  }
-  
-  .recent-desc {
     font-size: 12px;
   }
-  
-  .view-all-btn {
-    padding: 7px 16px;
-    font-size: 11.5px;
-    min-width: 80px;
-    margin-left: auto;
+
+  .doc-date {
+    font-size: 9px;
   }
 
   .doc-row-actions {
     gap: 8px;
   }
-  
-  .no-documents {
-    padding: 30px 15px;
+
+  .doc-remove-btn {
+    opacity: 1;
+    font-size: 11px;
   }
-  
-  .no-documents span {
-    font-size: 13.5px;
-  }
-  
-  .no-docs-hint {
-    font-size: 11.5px;
-    max-width: 180px;
+
+  .recent-footer button {
+    padding: 8px 20px !important;
+    font-size: 13px !important;
   }
 }
 
@@ -550,55 +423,60 @@
   }
 
   .doc-icon-wrapper {
-    width: 24px !important;
-    height: 24px !important;
+    width: 24px;
+    height: 24px;
   }
 
   .doc-icon {
+    font-size: 12px;
+  }
+
+  .doc-name {
+    font-size: 11px;
+  }
+
+  .doc-date {
+    font-size: 8px;
+  }
+  
+  .recent-footer button {
+    padding: 6px 16px !important;
     font-size: 12px !important;
   }
-  
-  .doc-name {
-    font-size: 12.5px !important;
+}
+
+/* ========================================
+   TOUCH-FRIENDLY (Mobile Only)
+   ======================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  .recent-row:active {
+    background: var(--glass-bg) !important;
+  }
+
+  .doc-remove-btn:active {
+    transform: scale(0.95);
+    color: #ff6b6b;
+  }
+
+  .recent-footer button:active {
+    transform: scale(0.98);
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY - Reduced Motion
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .recent-card,
+  .recent-row,
+  .doc-remove-btn,
+  .recent-footer button {
+    transition: none !important;
   }
   
-  .doc-date {
-    font-size: 10.5px !important;
-  }
-  
-  .doc-arrow {
-    font-size: 12.5px !important;
-  }
-  
-  .recent-footer {
-    padding-top: 16px;
-    gap: 10px;
-  }
-  
-  .recent-desc {
-    font-size: 11.5px;
-  }
-  
-  .view-all-btn {
-    padding: 6px 14px;
-    font-size: 10.5px;
-    min-width: 70px;
-  }
-  
-  .footer-spacer {
-    width: 70px;
-  }
-  
-  .no-documents {
-    padding: 25px 15px;
-  }
-  
-  .no-documents span {
-    font-size: 12.5px;
-  }
-  
-  .no-docs-hint {
-    font-size: 10.5px;
-    max-width: 150px;
+  .recent-row:not(.empty-row):hover svg:last-child {
+    transform: none !important;
   }
 }
