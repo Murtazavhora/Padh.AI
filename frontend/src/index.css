@@ -1,29 +1,69 @@
-/* In your index.css or global.css file */
+/* ========================================
+   GLOBAL RESET & THEME
+   ======================================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+:root {
+  /* Defining the Color Hunt theme as variables for consistency */
+  --bg-midnight: #0D1117;
+  --text-main: #F0F6FC;
+  --text-muted: #8B949E;
+  --brand-yellow: #FACC15;
+}
+
 html, body, #root {
   width: 100%;
-  height: 100%;
-  background-color: #000000 !important; /* Force black background */
-  color: #ffffff;
+  min-height: 100%;
+  /* Using the Midnight Navy background instead of pure black */
+  background-color: var(--bg-midnight) !important; 
+  color: var(--text-main);
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #000000;
+  background-color: var(--bg-midnight);
+  /* Prevents horizontal scroll issues */
+  overflow-x: hidden; 
 }
 
-/* Ensure all main containers have black background */
+/* ========================================
+   CONTAINER STYLES
+   ======================================== */
 .app, .container, .page {
-  background-color: #000000;
+  background-color: var(--bg-midnight);
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom Scrollbar - High-end professional touch */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-midnight);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #30363D; /* Muted border color */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #484F58;
+}
+
+/* Selection color - matches your brand yellow */
+::selection {
+  background: rgba(250, 204, 21, 0.2);
+  color: var(--brand-yellow);
 }

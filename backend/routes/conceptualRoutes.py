@@ -4,7 +4,8 @@ from services.conceptualService import (
     generate_questions,
     evaluate_answer,
     rewrite_answer,
-    generate_questions_from_pdf
+    generate_questions_from_pdf,
+    generate_more_questions
 )
 
 router = APIRouter()
@@ -13,12 +14,17 @@ class Req(BaseModel):
     topic: str = ""
     question: str = ""
     answer: str = ""
-    # content: str = "" 
+    current_questions: list = []
 
 # -----------------Topic-based question generation------------------
 @router.post("/generate")
 def gen(req: Req):
     return generate_questions(req.topic)
+
+# -----------------Recent-Document-based question generation------------------
+@router.post("/generate-from-content")
+def generate_from_content(req: Req):
+    return generate_questions(req.content)
     
 # ----------------PDF-based question generation----------------
 @router.post("/generate-pdf")
@@ -29,6 +35,11 @@ async def gen_pdf(file: UploadFile = File(...)):
         f.write(await file.read())
 
     return generate_questions_from_pdf(file_path)
+
+# ----------------Generate More Questions----------------
+@router.post("/generate-more")
+def gen_more(req: Req):
+    return generate_more_questions(req.topic, req.current_questions)
 
 # ----------------Evaluation---------------
 @router.post("/evaluate")

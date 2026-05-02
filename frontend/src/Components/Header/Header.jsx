@@ -47,6 +47,8 @@ function Header({ onNavigate, currentView }) {
   };
 
   const handleItemClick = (itemName) => {
+      closeSidebar();
+
     setActiveItem(itemName);
     
     // Handle navigation for different items - navigates immediately

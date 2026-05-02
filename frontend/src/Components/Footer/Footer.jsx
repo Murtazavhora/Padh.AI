@@ -1,7 +1,7 @@
 import React from "react";
 import "./Footer.css";
 import { FaFacebookF, FaInstagram, FaTwitter, FaYoutube, FaLinkedinIn } from "react-icons/fa";
-import { MdEmail, MdPhone, MdLocationOn } from "react-icons/md";
+import { MdEmail, MdLocationOn } from "react-icons/md";
 import { IoMdSend } from "react-icons/io";
 
 function Footer() {
@@ -24,18 +24,17 @@ function Footer() {
             <p><MdEmail /> padh.ai@gmail.com</p>
             <p><MdLocationOn /> MIT ADT University</p>
           </div>
-          <p className="footer-copy">© 2026 Padh.AI. All Rights reserved.</p>
         </div>
 
         {/* Links Column */}
         <div className="footer-column">
           <h4>Quick Links</h4>
           <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Quick Actions</a></li>
-            <li><a href="#">Recommended</a></li>
-            <li><a href="#">Recent Documents</a></li>
-            <li><a href="#">Calendar</a></li>
+            <li><a href=".">Home</a></li>
+            <li><a href=".">Quick Actions</a></li>
+            <li><a href=".">Recommended</a></li>
+            <li><a href=".">Recent Documents</a></li>
+            <li><a href=".">Calendar</a></li>
           </ul>
         </div>
 
@@ -51,7 +50,7 @@ function Footer() {
           </ul>
         </div>
 
-        {/* Social Column */}
+        {/* Social & Feedback Column */}
         <div className="footer-column social-column">
           <h4>Connect With Us</h4>
           <p className="social-text">Follow us on Social Media for updates and news</p>
@@ -63,20 +62,18 @@ function Footer() {
             <a href="#" className="social-icon"><FaLinkedinIn /></a>
           </div>
           
-          {/* Simplified Feedback Section - Always in a row */}
+          {/* Feedback Section - Now with integrated button for the "Wide Look" */}
           <div className="feedback-section">
-            <div className="feedback-header">
-              <h5>Your Feedback Matters</h5>
-              <button className="feedback-submit">
-                <IoMdSend className="send-icon" /> Send Feedback
-              </button>
-            </div>
+            <h5>Your Feedback Matters</h5>
             <div className="feedback-input-group">
               <textarea 
-                placeholder="Share your feedback, suggestions, or report an issue..." 
+                placeholder="Share your feedback..." 
                 className="feedback-textarea"
-                rows="3"
+                rows="1"
               ></textarea>
+              <button className="feedback-submit">
+                <IoMdSend className="send-icon" />
+              </button>
             </div>
           </div>
         </div>
@@ -84,6 +81,7 @@ function Footer() {
 
       {/* Bottom Bar */}
       <div className="footer-bottom">
+        <p className="footer-copy">© 2026 Padh.AI. All Rights reserved.</p>
         <div className="footer-legal">
           <a href="#">Privacy Policy</a>
           <span className="separator">|</span>
