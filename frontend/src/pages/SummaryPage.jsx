@@ -3,7 +3,7 @@ import './SummaryPage.css';
 import Header from '../Components/Header/Header';
 import Footer from '../Components/Footer/Footer';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 function SummaryPage({ onBack }) {
   const [selectedDoc, setSelectedDoc] = useState(null);
