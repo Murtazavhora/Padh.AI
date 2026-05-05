@@ -7,7 +7,7 @@ export default function AuthPage({ onSuccess }) {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
-
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
   const handleAuth = async () => {
     if (!email || !password) {
       alert("Please fill all fields");
@@ -16,7 +16,8 @@ export default function AuthPage({ onSuccess }) {
     setLoading(true);
     try {
       const endpoint = isLogin ? "login" : "signup";
-      const res = await fetch(`http://localhost:8000/api/auth/${endpoint}`, {
+     
+      const res = await fetch(`${API_BASE}/api/auth/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

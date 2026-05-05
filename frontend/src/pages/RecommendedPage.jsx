@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./RecommendedPage.css";
 
-const API = "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 export default function App() {
   // State
@@ -28,7 +28,7 @@ export default function App() {
   const fetchDocuments = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API}/documents/`, {
+      const res = await fetch(`${API_BASE}/api/documents/`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -52,7 +52,7 @@ export default function App() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch(`${API}/upload`, {
+      const res = await fetch(`${API_BASE}/api/upload`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData
@@ -86,7 +86,7 @@ export default function App() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API}/conceptual/generate`, {
+      const res = await fetch(`${API_BASE}/api/conceptual/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -126,7 +126,7 @@ export default function App() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API}/conceptual/generate-more`, {
+      const res = await fetch(`${API_BASE}/api/conceptual/generate-more`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -156,7 +156,7 @@ export default function App() {
     setEvaluating(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${API}/conceptual/evaluate`, {
+      const res = await fetch(`${API_BASE}/api/conceptual/evaluate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

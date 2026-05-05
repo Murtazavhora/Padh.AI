@@ -19,7 +19,7 @@ import {
   FiTrendingUp
 } from 'react-icons/fi';
 
-const BACKEND_URL = 'http://localhost:8000/api/quiz';
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 function QuizPage({ onBack }) {
   const [topic, setTopic] = useState('');
@@ -80,8 +80,6 @@ function QuizPage({ onBack }) {
       window.removeEventListener('documentsUpdated', handleDocumentsUpdated);
     };
   }, []);
-
-  const API_BASE = 'http://localhost:8000';
 
 const loadDocuments = async () => {
   try {
@@ -145,7 +143,7 @@ const loadDocuments = async () => {
     setQuizStats(null);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/generate`, {
+      const response = await fetch(`${API_BASE}/api/quiz/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic: topic.trim() }),
@@ -182,7 +180,7 @@ const loadDocuments = async () => {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`${BACKEND_URL}/generate`, {
+      const response = await fetch(`${API_BASE}/api/quiz/generate`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -261,7 +259,7 @@ const loadDocuments = async () => {
         answersWithStringKeys[String(k)] = v;
       });
 
-      const response = await fetch(`${BACKEND_URL}/submit`, {
+      const response = await fetch(`${API_BASE}/api/quiz/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -314,7 +312,7 @@ const loadDocuments = async () => {
 
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`${BACKEND_URL}/generate-more`, {
+      const response = await fetch(`${API_BASE}}/api/quiz/generate-more`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
