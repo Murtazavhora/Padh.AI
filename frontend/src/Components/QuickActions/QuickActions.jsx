@@ -7,6 +7,7 @@ import {
   FiChevronRight,
   FiZap
 } from 'react-icons/fi';
+import robotImage from '../../assets/robot.png';
 import { useCallback } from 'react';
 
 function QuickActions({ onNavigate }) {
@@ -176,7 +177,19 @@ function QuickActions({ onNavigate }) {
                 <span className="header-badge">New</span>
               </div>
 
-              <div className="recommended-card">
+              <div
+                className="recommended-card recommended-card-hitarea"
+                role="button"
+                tabIndex={0}
+                onClick={handleTryNow}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleTryNow();
+                  }
+                }}
+                aria-label="Open Anti-Lazy AI recommendation"
+              >
                 <div className="recommended-content">
                   <div className="recommended-icon">
                     <FiZap />
@@ -186,18 +199,10 @@ function QuickActions({ onNavigate }) {
                     <h3 className="recommended-title">Anti-Lazy AI</h3>
                     <p className="recommended-tagline">Learn actively</p>
                   </div>
-                </div>
 
-                <div className="recommended-footer">
-                  <p className="recommended-desc">
-                    Smart questioning for better learning
-                  </p>
-                  <button
-                    className="try-now-btn"
-                    onClick={handleTryNow}
-                  >
-                    Try
-                  </button>
+                  <div className="recommended-art" aria-hidden="true">
+                    <img src={robotImage} alt="" className="recommended-art-image" />
+                  </div>
                 </div>
               </div>
             </div>
